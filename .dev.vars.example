@@ -1,0 +1,13 @@
+# Modelo do arquivo de segredos LOCAIS.
+#
+# Copie para .dev.vars (o script faz isso sozinho) e preencha.
+# O .dev.vars esta no .gitignore e NUNCA deve ser commitado.
+#
+# Os dois primeiros valores saem do Google Cloud Console:
+#   APIs e servicos -> Credenciais -> Criar credenciais
+#   -> ID do cliente OAuth -> Aplicativo da Web
+#
+# O SESSION_SECRET nao precisa ser preenchido: o script o gera com crypto.
+
+GOOGLE_CLIENT_ID=PREENCHER
+GOOGLE_CLIENT_SECRET=PREENCHER
