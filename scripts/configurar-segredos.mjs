@@ -51,12 +51,24 @@ function nomeDoProjeto() {
 }
 
 // Envia um segredo pelo stdin do wrangler. O valor nunca aparece como argumento.
+//
+// Chama o wrangler pelo proprio Node, apontando para o arquivo .js dentro de
+// node_modules, em vez de passar pelo npx. No Windows o npx e um arquivo .cmd,
+// e desde o Node 20 executar .cmd sem shell e bloqueado por seguranca — da
+// EINVAL. Ligar o shell resolveria, mas ai os argumentos passam pelo cmd e
+// ganham regras de aspas. Chamar o .js direto evita os dois problemas.
 function enviarSegredo(nome, valor, projeto) {
   return new Promise((resolve, reject) => {
-    const comando = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+    const binarioLocal = join(RAIZ, 'node_modules', 'wrangler', 'bin', 'wrangler.js');
+    if (!existsSync(binarioLocal)) {
+      reject(new Error(
+        'Nao achei o wrangler em node_modules. Rode: npm install -D wrangler'
+      ));
+      return;
+    }
     const filho = spawn(
-      comando,
-      ['wrangler', 'pages', 'secret', 'put', nome, '--project-name', projeto],
+      process.execPath,
+      [binarioLocal, 'pages', 'secret', 'put', nome, '--project-name', projeto],
       { stdio: ['pipe', 'inherit', 'inherit'] }
     );
     filho.stdin.write(valor);

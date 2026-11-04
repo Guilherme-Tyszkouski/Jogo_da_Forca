@@ -16,7 +16,7 @@ migrations_dir = "migrations"
 # Variaveis publicas. O Client ID do Google e publico por natureza: ele aparece
 # na URL de login que o navegador monta.
 [vars]
-GOOGLE_CLIENT_ID = "PREENCHER"
+GOOGLE_CLIENT_ID = "99578499287-vm3bboams3074fa9tb7a72fak24439r6.apps.googleusercontent.com"
 
 # O GOOGLE_CLIENT_SECRET NAO entra aqui. Ele vai, em desenvolvimento, no arquivo
 # .dev.vars (que esta no .gitignore) e, em producao, no Cloudflare:
