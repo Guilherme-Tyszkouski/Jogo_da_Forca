@@ -1,0 +1,8 @@
+node_modules/
+
+# Segredos de desenvolvimento. NUNCA commitar.
+.dev.vars
+.env
+
+# Cache do wrangler: guarda o Account ID do Cloudflare e o banco local.
+.wrangler/

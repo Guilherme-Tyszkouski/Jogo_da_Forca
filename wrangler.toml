@@ -1,0 +1,23 @@
+name = "jogo-da-forca"
+compatibility_date = "2026-11-04"
+pages_build_output_dir = "public"
+
+# Banco D1. O database_id sai do comando:
+#   npx wrangler d1 create forca-db
+# Cole o valor aqui no lugar de PREENCHER. Nao e segredo: identifica o banco,
+# nao da acesso a ele.
+[[d1_databases]]
+binding = "DB"
+database_name = "forca-db"
+database_id = "be33b4e9-8f95-4244-9b80-c93c5920d8cc"
+# A pasta das migrations pertence ao bloco do banco, nao ao topo do arquivo.
+migrations_dir = "migrations"
+
+# Variaveis publicas. O Client ID do Google e publico por natureza: ele aparece
+# na URL de login que o navegador monta.
+[vars]
+GOOGLE_CLIENT_ID = "PREENCHER"
+
+# O GOOGLE_CLIENT_SECRET NAO entra aqui. Ele vai, em desenvolvimento, no arquivo
+# .dev.vars (que esta no .gitignore) e, em producao, no Cloudflare:
+#   npx wrangler secret put GOOGLE_CLIENT_SECRET

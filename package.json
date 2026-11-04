@@ -1,0 +1,23 @@
+{
+  "name": "jogo-da-forca",
+  "version": "1.0.0",
+  "description": "Jogo da Forca com login Google, duelo assincrono e ranking, sobre Cloudflare Pages e D1.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dicionario": "node scripts/gerar-dicionario.mjs",
+    "db:local": "wrangler d1 migrations apply forca-db --local",
+    "db:remote": "wrangler d1 migrations apply forca-db --remote",
+    "db:conta": "wrangler d1 execute forca-db --remote --command \"SELECT COUNT(*) AS total FROM palavras\"",
+    "dev": "wrangler pages dev",
+    "verificar": "node --check scripts/gerar-dicionario.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guilherme-Tyszkouski/Jogo_da_Forca.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^4.157.0"
+  }
+}
