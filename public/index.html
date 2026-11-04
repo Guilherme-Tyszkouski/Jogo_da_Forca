@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f0e6">
+  <title>Forca — Jogo de palavras</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="dustCanvas" aria-hidden="true"></canvas>
+  <div class="western-sun" aria-hidden="true"></div>
+  <div class="landscape" aria-hidden="true">
+    <div class="mesa mesa-left"></div>
+    <div class="mesa mesa-right"></div>
+    <div class="ground"></div>
+  </div>
+  <main class="game-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Página inicial do jogo da forca">
+        <span class="brand-mark" aria-hidden="true">F</span>
+        <span>FORCA</span>
+      </a>
+      <button class="icon-button" id="soundButton" type="button" aria-label="Ativar som" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Zm5.5 3a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14"/></svg>
+      </button>
+    </header>
+
+    <section class="game-card" aria-label="Jogo da forca">
+      <div class="status-row">
+        <span class="eyebrow">PALAVRA MISTERIOSA</span>
+        <span class="mistakes" id="mistakes" aria-live="polite">0 / 6 erros</span>
+      </div>
+
+      <div class="play-area">
+        <div class="hangman-wrap" aria-hidden="true">
+          <svg class="hangman" viewBox="0 0 330 310">
+            <path class="gallows" d="M36 284H292M74 284V26H228V54"/>
+            <circle class="figure-part" data-part="0" cx="228" cy="88" r="34"/>
+            <path class="figure-part" data-part="1" d="M228 122V205"/>
+            <path class="figure-part" data-part="2" d="M228 145L176 178"/>
+            <path class="figure-part" data-part="3" d="M228 145L280 178"/>
+            <path class="figure-part" data-part="4" d="M228 205L184 256"/>
+            <path class="figure-part" data-part="5" d="M228 205L272 256"/>
+            <path class="face" d="M214 84l8 8m20-8-8 8"/>
+          </svg>
+        </div>
+
+        <div class="word-panel">
+          <p class="category" id="category">CATEGORIA</p>
+          <div class="word" id="word" aria-label="Palavra secreta"></div>
+          <p class="hint" id="hint"></p>
+        </div>
+      </div>
+
+      <div class="keyboard" id="keyboard" aria-label="Teclado do jogo"></div>
+
+      <div class="actions">
+        <button class="hint-button" id="hintButton" type="button">Dica</button>
+        <button class="new-button" id="newButton" type="button">Nova palavra</button>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="resultDialog">
+    <div class="dialog-icon" id="dialogIcon" aria-hidden="true">✓</div>
+    <h2 id="dialogTitle">Você venceu!</h2>
+    <p id="dialogMessage"></p>
+    <button id="dialogButton" type="button">Jogar novamente</button>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
