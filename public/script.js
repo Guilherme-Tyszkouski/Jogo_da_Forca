@@ -1,136 +1,229 @@
-const words = [
-  { word: "CAFÉ", category: "ALIMENTOS", hint: "Uma bebida quente que ajuda a acordar." },
-  { word: "JACARÉ", category: "ANIMAIS", hint: "Um grande réptil que vive perto da água." },
-  { word: "VIOLÃO", category: "MÚSICA", hint: "Instrumento de cordas usado em rodas de música." },
-  { word: "ABACAXI", category: "FRUTAS", hint: "Uma fruta tropical com coroa." },
-  { word: "BRASIL", category: "PAÍSES", hint: "Maior país da América do Sul." },
-  { word: "ESTRELA", category: "ESPAÇO", hint: "Corpo celeste que brilha à noite." },
-  { word: "PIRATA", category: "PERSONAGENS", hint: "Navegador famoso por procurar tesouros." },
-  { word: "BICICLETA", category: "TRANSPORTES", hint: "Veículo movido pelos pedais." }
-];
+// Jogo da Forca — cliente.
+//
+// Este arquivo NAO sabe qual e a palavra. Ele guarda apenas o que o servidor
+// ja revelou. Toda decisao de acerto, erro e fim de jogo acontece nas Functions
+// em /api, contra o banco D1.
 
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const maxErrors = 6;
-let currentWord;
-let guessedLetters;
-let errors;
-let hintShown;
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+const estado = {
+  partidaId: null,
+  tamanho: 0,
+  reveladas: [],      // posicao -> caractere, ou null enquanto escondido
+  erros: 0,
+  maxErros: 6,
+  situacao: 'em_andamento',
+  definicao: null,    // dica textual da palavra, quando o dicionario tem
+  dicaVisivel: false,
+  ocupado: false      // evita dois cliques dispararem duas requisicoes
+};
+
+let autenticado = false;
 let soundEnabled = false;
 
-const wordElement = document.getElementById("word");
-const categoryElement = document.getElementById("category");
-const hintElement = document.getElementById("hint");
-const keyboardElement = document.getElementById("keyboard");
-const mistakesElement = document.getElementById("mistakes");
-const dialog = document.getElementById("resultDialog");
+const wordElement = document.getElementById('word');
+const categoryElement = document.getElementById('category');
+const hintElement = document.getElementById('hint');
+const keyboardElement = document.getElementById('keyboard');
+const mistakesElement = document.getElementById('mistakes');
+const dialog = document.getElementById('resultDialog');
+const hintButton = document.getElementById('hintButton');
+const newButton = document.getElementById('newButton');
 
 function normalizeLetter(letter) {
-  return letter.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return letter.normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
 
-function newGame() {
-  currentWord = words[Math.floor(Math.random() * words.length)];
-  guessedLetters = new Set();
-  errors = 0;
-  hintShown = false;
-  dialog.close();
-  categoryElement.textContent = currentWord.category;
-  hintElement.textContent = "";
-  document.querySelectorAll(".figure-part, .face").forEach(part => part.classList.remove("visible"));
-  document.querySelectorAll(".key").forEach(key => {
-    key.disabled = false;
-    key.classList.remove("correct", "wrong");
+async function pedir(caminho, corpo) {
+  const resposta = await fetch(caminho, {
+    method: 'POST',
+    headers: corpo ? { 'Content-Type': 'application/json' } : undefined,
+    body: corpo ? JSON.stringify(corpo) : undefined
   });
-  renderWord();
-  updateMistakes();
-  document.querySelector(".key:not([disabled])")?.focus();
+  const dados = await resposta.json().catch(() => ({}));
+  if (!resposta.ok) throw Object.assign(new Error(dados.erro || 'Falha'), { status: resposta.status });
+  return dados;
 }
+
+// ----------------------------------------------------------------- sessao
+
+async function carregarUsuario() {
+  try {
+    const dados = await (await fetch('/api/auth/eu')).json();
+    autenticado = dados.autenticado === true;
+    if (autenticado) {
+      const primeiro = (dados.nome || dados.email || 'Jogador').split(' ')[0];
+      categoryElement.textContent = `JOGADOR: ${primeiro.toUpperCase()}`;
+    } else {
+      categoryElement.replaceChildren();
+      const entrar = document.createElement('a');
+      entrar.href = '/api/auth/login';
+      entrar.textContent = 'ENTRAR COM GOOGLE';
+      categoryElement.append(entrar);
+    }
+  } catch {
+    autenticado = false;
+    categoryElement.textContent = 'SERVIDOR INDISPONIVEL';
+  }
+  return autenticado;
+}
+
+// ------------------------------------------------------------------- tela
 
 function renderWord() {
   wordElement.replaceChildren();
-  [...currentWord.word].forEach(character => {
-    const slot = document.createElement("span");
-    slot.className = "letter-slot";
-    if (character === " ") {
-      slot.style.borderColor = "transparent";
-      slot.textContent = " ";
-    } else {
-      const normalized = normalizeLetter(character);
-      slot.textContent = guessedLetters.has(normalized) ? character : "";
-    }
+  estado.reveladas.forEach(caractere => {
+    const slot = document.createElement('span');
+    slot.className = 'letter-slot';
+    slot.textContent = caractere ?? '';
     wordElement.append(slot);
   });
 
-  wordElement.setAttribute("aria-label", [...currentWord.word].map(character => {
-    if (character === " ") return "espaço";
-    return guessedLetters.has(normalizeLetter(character)) ? character : "letra ocultada";
-  }).join(", "));
+  wordElement.setAttribute(
+    'aria-label',
+    estado.reveladas.map(c => c ?? 'letra ocultada').join(', ')
+  );
 }
 
-function makeKeyboard() {
-  [...alphabet].forEach(letter => {
-    const button = document.createElement("button");
-    button.className = "key";
-    button.type = "button";
-    button.textContent = letter;
-    button.dataset.letter = letter;
-    button.setAttribute("aria-label", `Letra ${letter}`);
-    button.addEventListener("click", () => guess(letter));
-    keyboardElement.append(button);
-  });
-}
-
-function guess(letter) {
-  if (guessedLetters.has(letter) || dialog.open || errors >= maxErrors) return;
-  const normalizedWord = normalizeLetter(currentWord.word);
-  const button = document.querySelector(`[data-letter="${letter}"]`);
-  guessedLetters.add(letter);
-  button.disabled = true;
-
-  if (normalizedWord.includes(letter)) {
-    button.classList.add("correct");
-    playTone(520);
-  } else {
-    errors += 1;
-    button.classList.add("wrong");
-    showBodyPart(errors - 1);
-    playTone(180);
-  }
-
-  renderWord();
-  updateMistakes();
-  checkResult();
+function updateMistakes() {
+  mistakesElement.textContent = `${estado.erros} / ${estado.maxErros} erros`;
 }
 
 function showBodyPart(index) {
   const part = document.querySelector(`.figure-part[data-part="${index}"]`);
-  if (part) part.classList.add("visible");
-  if (index === maxErrors - 1) document.querySelector(".face").classList.add("visible");
+  if (part) part.classList.add('visible');
+  if (index === estado.maxErros - 1) document.querySelector('.face').classList.add('visible');
 }
 
-function updateMistakes() {
-  mistakesElement.textContent = `${errors} / ${maxErrors} erros`;
+function sincronizarBoneco() {
+  for (let i = 0; i < estado.erros; i++) showBodyPart(i);
 }
 
-function checkResult() {
-  const normalizedWord = normalizeLetter(currentWord.word);
-  const lettersInWord = new Set(normalizedWord.replace(/[^A-Z]/g, ""));
-  const won = [...lettersInWord].every(letter => guessedLetters.has(letter));
+function travarTeclado(travado) {
+  document.querySelectorAll('.key').forEach(key => {
+    if (travado) key.disabled = true;
+  });
+  hintButton.disabled = travado;
+}
 
-  if (won) {
-    showResult(true);
-  } else if (errors >= maxErrors) {
-    showResult(false);
+function showResult(venceu, palavra) {
+  document.getElementById('dialogIcon').textContent = venceu ? '✓' : '×';
+  document.getElementById('dialogTitle').textContent = venceu ? 'Você venceu!' : 'Fim de jogo';
+  document.getElementById('dialogMessage').textContent = venceu
+    ? `Você descobriu a palavra ${palavra}.`
+    : `A palavra era ${palavra}.`;
+  dialog.showModal();
+}
+
+// ------------------------------------------------------------------ jogo
+
+async function newGame() {
+  if (!autenticado && !(await carregarUsuario())) {
+    hintElement.textContent = 'Entre com sua conta Google para jogar.';
+    return;
+  }
+
+  try {
+    const partida = await pedir('/api/partida');
+    estado.partidaId = partida.partidaId;
+    estado.tamanho = partida.tamanho;
+    estado.maxErros = partida.maxErros;
+    estado.reveladas = Array(partida.tamanho).fill(null);
+    estado.erros = 0;
+    estado.situacao = 'em_andamento';
+    estado.definicao = partida.definicao;
+    estado.dicaVisivel = false;
+  } catch (erro) {
+    hintElement.textContent = erro.message;
+    return;
+  }
+
+  if (dialog.open) dialog.close();
+  hintElement.textContent = '';
+  document.querySelectorAll('.figure-part, .face').forEach(p => p.classList.remove('visible'));
+  document.querySelectorAll('.key').forEach(key => {
+    key.disabled = false;
+    key.classList.remove('correct', 'wrong');
+  });
+  hintButton.disabled = false;
+
+  renderWord();
+  updateMistakes();
+  document.querySelector('.key:not([disabled])')?.focus();
+}
+
+function aplicarResposta(resposta, botao) {
+  if (resposta.acertou) {
+    for (const { posicao, caractere } of resposta.reveladas) {
+      estado.reveladas[posicao] = caractere;
+    }
+    botao?.classList.add('correct');
+    playTone(520);
+  } else {
+    botao?.classList.add('wrong');
+    playTone(180);
+  }
+
+  estado.erros = resposta.erros;
+  estado.situacao = resposta.situacao;
+
+  renderWord();
+  updateMistakes();
+  sincronizarBoneco();
+
+  if (resposta.situacao !== 'em_andamento') {
+    travarTeclado(true);
+    showResult(resposta.situacao === 'vitoria', resposta.palavra);
   }
 }
 
-function showResult(won) {
-  document.getElementById("dialogIcon").textContent = won ? "✓" : "×";
-  document.getElementById("dialogTitle").textContent = won ? "Você venceu!" : "Fim de jogo";
-  document.getElementById("dialogMessage").textContent = won
-    ? `Você descobriu a palavra ${currentWord.word}.`
-    : `A palavra era ${currentWord.word}.`;
-  dialog.showModal();
+async function guess(letter) {
+  if (estado.ocupado || !estado.partidaId) return;
+  if (estado.situacao !== 'em_andamento' || dialog.open) return;
+
+  const botao = document.querySelector(`[data-letter="${letter}"]`);
+  if (botao?.disabled) return;
+
+  estado.ocupado = true;
+  if (botao) botao.disabled = true;
+
+  try {
+    aplicarResposta(await pedir('/api/chute', { partidaId: estado.partidaId, letra: letter }), botao);
+  } catch (erro) {
+    // Se o servidor recusou, devolve o botao: a letra nao foi gasta.
+    if (botao && erro.status !== 409) botao.disabled = false;
+    hintElement.textContent = erro.message;
+  } finally {
+    estado.ocupado = false;
+  }
+}
+
+// A Dica mostra o que a palavra significa. Nao custa erro e nao revela letra:
+// e a mesma ideia do jogo original, so que o texto vem do dicionario em vez de
+// ter sido escrito a mao.
+function mostrarDica() {
+  if (estado.situacao !== 'em_andamento') return;
+
+  if (!estado.definicao) {
+    hintElement.textContent = 'Esta palavra nao tem dica no dicionario.';
+    return;
+  }
+
+  estado.dicaVisivel = !estado.dicaVisivel;
+  hintElement.textContent = estado.dicaVisivel ? estado.definicao : '';
+}
+
+function makeKeyboard() {
+  [...alphabet].forEach(letter => {
+    const button = document.createElement('button');
+    button.className = 'key';
+    button.type = 'button';
+    button.textContent = letter;
+    button.dataset.letter = letter;
+    button.setAttribute('aria-label', `Letra ${letter}`);
+    button.addEventListener('click', () => guess(letter));
+    keyboardElement.append(button);
+  });
 }
 
 function playTone(frequency) {
@@ -146,27 +239,25 @@ function playTone(frequency) {
   oscillator.stop(context.currentTime + 0.08);
 }
 
-document.getElementById("hintButton").addEventListener("click", () => {
-  hintShown = !hintShown;
-  hintElement.textContent = hintShown ? currentWord.hint : "";
-});
-
-document.getElementById("newButton").addEventListener("click", newGame);
-document.getElementById("dialogButton").addEventListener("click", newGame);
-document.getElementById("soundButton").addEventListener("click", event => {
+hintButton.addEventListener('click', mostrarDica);
+newButton.addEventListener('click', newGame);
+document.getElementById('dialogButton').addEventListener('click', newGame);
+document.getElementById('soundButton').addEventListener('click', event => {
   soundEnabled = !soundEnabled;
-  event.currentTarget.setAttribute("aria-pressed", String(soundEnabled));
-  event.currentTarget.setAttribute("aria-label", soundEnabled ? "Desativar som" : "Ativar som");
+  event.currentTarget.setAttribute('aria-pressed', String(soundEnabled));
+  event.currentTarget.setAttribute('aria-label', soundEnabled ? 'Desativar som' : 'Ativar som');
 });
 
-document.addEventListener("keydown", event => {
+document.addEventListener('keydown', event => {
   if (event.ctrlKey || event.metaKey || event.altKey || dialog.open) return;
   const letter = normalizeLetter(event.key).toUpperCase();
   if (/^[A-Z]$/.test(letter)) guess(letter);
 });
 
-const dustCanvas = document.getElementById("dustCanvas");
-const dustContext = dustCanvas.getContext("2d");
+// --------------------------------------------------------- cenario (visual)
+
+const dustCanvas = document.getElementById('dustCanvas');
+const dustContext = dustCanvas.getContext('2d');
 let dustParticles = [];
 
 function resizeDust() {
@@ -202,18 +293,20 @@ function animateDust() {
   requestAnimationFrame(animateDust);
 }
 
-window.addEventListener("resize", resizeDust);
-document.addEventListener("pointermove", event => {
+window.addEventListener('resize', resizeDust);
+document.addEventListener('pointermove', event => {
   const x = (event.clientX / window.innerWidth - .5) * 14;
   const y = (event.clientY / window.innerHeight - .5) * 8;
-  document.querySelector(".mesa-left").style.transform = `translate(${x * -0.25}px, ${y * -0.2}px)`;
-  document.querySelector(".mesa-right").style.transform = `translate(${x * -0.4}px, ${y * -0.2}px) scale(.75)`;
-  document.querySelector(".western-sun").style.transform = `translate(${-x}px, ${-y}px)`;
-  document.querySelector(".game-shell").style.transform = `rotateY(${x * 0.14}deg) rotateX(${-y * 0.12}deg)`;
-  document.querySelector(".hangman").style.transform = `rotateY(${-8 + x * 0.35}deg) rotateX(${2 - y * 0.25}deg)`;
+  document.querySelector('.mesa-left').style.transform = `translate(${x * -0.25}px, ${y * -0.2}px)`;
+  document.querySelector('.mesa-right').style.transform = `translate(${x * -0.4}px, ${y * -0.2}px) scale(.75)`;
+  document.querySelector('.western-sun').style.transform = `translate(${-x}px, ${-y}px)`;
+  document.querySelector('.game-shell').style.transform = `rotateY(${x * 0.14}deg) rotateX(${-y * 0.12}deg)`;
+  document.querySelector('.hangman').style.transform = `rotateY(${-8 + x * 0.35}deg) rotateX(${2 - y * 0.25}deg)`;
 });
 resizeDust();
 animateDust();
 
+// ------------------------------------------------------------------ inicio
+
 makeKeyboard();
-newGame();
+carregarUsuario().then(ok => { if (ok) newGame(); });

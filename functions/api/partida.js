@@ -17,7 +17,7 @@ export async function onRequestPost({ request, env }) {
   // ORDER BY RANDOM() varre a tabela inteira. Com 3000 linhas isso e
   // irrelevante; se o dicionario crescer muito, troca por sorteio de id.
   const palavra = await env.DB
-    .prepare('SELECT id, tamanho FROM palavras ORDER BY RANDOM() LIMIT 1')
+    .prepare('SELECT id, tamanho, definicao FROM palavras ORDER BY RANDOM() LIMIT 1')
     .first();
 
   if (!palavra) {
@@ -33,6 +33,9 @@ export async function onRequestPost({ request, env }) {
   return Response.json({
     partidaId: criada.id,
     tamanho: palavra.tamanho,
-    maxErros: MAX_ERROS
+    maxErros: MAX_ERROS,
+    // A definicao ja vem mascarada no banco: a propria palavra foi trocada por
+    // ____ quando o verbete a repetia. Pode atravessar sem entregar o jogo.
+    definicao: palavra.definicao ?? null
   });
 }

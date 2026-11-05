@@ -62,12 +62,17 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ erro: 'Letra ja usada.' }, { status: 409 });
   }
 
-  const posicoes = [];
+  // Devolve posicao E caractere. A comparacao e feita na forma sem acento
+  // (chutar A acerta o A de FUNCAO), mas quem desenha a tela precisa do
+  // caractere com acento, senao FUNCAO aparece sem o til.
+  const reveladas = [];
   const normalizada = partida.normalizada;
   for (let i = 0; i < normalizada.length; i++) {
-    if (normalizada[i] === letra) posicoes.push(i);
+    if (normalizada[i] === letra) {
+      reveladas.push({ posicao: i, caractere: partida.palavra[i] });
+    }
   }
-  const acertou = posicoes.length > 0;
+  const acertou = reveladas.length > 0;
 
   letras.add(letra);
   const erros = partida.erros + (acertou ? 0 : 1);
@@ -92,7 +97,7 @@ export async function onRequestPost({ request, env }) {
 
   return Response.json({
     acertou,
-    posicoes,
+    reveladas,
     erros,
     maxErros: MAX_ERROS,
     situacao,
