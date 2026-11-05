@@ -1,47 +1,21 @@
-// Configura os segredos do projeto sem que nenhum valor apareca na tela,
-// no chat ou no repositorio.
+// Envia os segredos para o Cloudflare, lendo das variaveis de ambiente.
 //
-// O que ele faz:
-//   1. cria .dev.vars a partir de .dev.vars.example, se ainda nao existir;
-//   2. GERA sozinho o SESSION_SECRET com crypto, porque chave de assinatura de
-//      sessao nao precisa vir de lugar nenhum — precisa so ser aleatoria;
-//   3. valida o formato do que voce colou, sem imprimir o conteudo;
-//   4. envia os segredos para o Cloudflare por stdin, de modo que o valor nunca
-//      vira argumento de linha de comando (argumento fica no historico do shell
-//      e na lista de processos; stdin nao).
+// Nao existe mais arquivo de segredos no projeto. A mesma fonte que o
+// `npm run dev` usa e a que este script usa, entao nao ha dois lugares para
+// desencontrar valor.
 //
-// Uso:  node scripts/configurar-segredos.mjs            -> so valida local
+// Uso:  node scripts/configurar-segredos.mjs            -> so valida
 //       node scripts/configurar-segredos.mjs --enviar   -> envia ao Cloudflare
 
-import { readFileSync, writeFileSync, existsSync, appendFileSync } from 'node:fs';
-import { randomBytes } from 'node:crypto';
+import { readFileSync, existsSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..');
-const CAMINHO = join(RAIZ, '.dev.vars');
-const MODELO = join(RAIZ, '.dev.vars.example');
 const ENVIAR = process.argv.includes('--enviar');
 
-// Segredos de verdade: nunca entram no repositorio.
 const SEGREDOS = ['GOOGLE_CLIENT_SECRET', 'SESSION_SECRET'];
-
-// Valores publicos: ficam no wrangler.toml, repetidos aqui so para o dev local.
-const PUBLICOS = ['GOOGLE_CLIENT_ID'];
-
-function lerArquivo() {
-  if (!existsSync(CAMINHO)) return {};
-  const mapa = {};
-  for (const linha of readFileSync(CAMINHO, 'utf8').split(/\r?\n/)) {
-    const limpa = linha.trim();
-    if (!limpa || limpa.startsWith('#')) continue;
-    const corte = limpa.indexOf('=');
-    if (corte < 0) continue;
-    mapa[limpa.slice(0, corte).trim()] = limpa.slice(corte + 1).trim().replace(/^["']|["']$/g, '');
-  }
-  return mapa;
-}
 
 function nomeDoProjeto() {
   const toml = readFileSync(join(RAIZ, 'wrangler.toml'), 'utf8');
@@ -50,25 +24,20 @@ function nomeDoProjeto() {
   return achado[1];
 }
 
-// Envia um segredo pelo stdin do wrangler. O valor nunca aparece como argumento.
-//
-// Chama o wrangler pelo proprio Node, apontando para o arquivo .js dentro de
-// node_modules, em vez de passar pelo npx. No Windows o npx e um arquivo .cmd,
-// e desde o Node 20 executar .cmd sem shell e bloqueado por seguranca — da
-// EINVAL. Ligar o shell resolveria, mas ai os argumentos passam pelo cmd e
-// ganham regras de aspas. Chamar o .js direto evita os dois problemas.
+// Envia pelo stdin. O valor nunca vira argumento de linha de comando, que
+// ficaria no historico do shell e na lista de processos.
 function enviarSegredo(nome, valor, projeto) {
   return new Promise((resolve, reject) => {
-    const binarioLocal = join(RAIZ, 'node_modules', 'wrangler', 'bin', 'wrangler.js');
-    if (!existsSync(binarioLocal)) {
-      reject(new Error(
-        'Nao achei o wrangler em node_modules. Rode: npm install -D wrangler'
-      ));
+    const binario = join(RAIZ, 'node_modules', 'wrangler', 'bin', 'wrangler.js');
+    if (!existsSync(binario)) {
+      reject(new Error('Nao achei o wrangler em node_modules. Rode: npm install'));
       return;
     }
+    // Chama o wrangler.js pelo Node: no Windows o npx e um .cmd, e o Node 20+
+    // bloqueia executar .cmd sem shell (EINVAL).
     const filho = spawn(
       process.execPath,
-      [binarioLocal, 'pages', 'secret', 'put', nome, '--project-name', projeto],
+      [binario, 'pages', 'secret', 'put', nome, '--project-name', projeto],
       { stdio: ['pipe', 'inherit', 'inherit'] }
     );
     filho.stdin.write(valor);
@@ -82,58 +51,36 @@ function enviarSegredo(nome, valor, projeto) {
 
 // ---------------------------------------------------------------- execucao
 
-if (!existsSync(CAMINHO)) {
-  if (!existsSync(MODELO)) {
-    console.error('Falta .dev.vars.example para servir de modelo.');
-    process.exit(1);
-  }
-  writeFileSync(CAMINHO, readFileSync(MODELO, 'utf8'), 'utf8');
-  console.log('.dev.vars criado a partir do modelo.');
-  console.log('Abra o arquivo e cole o Client ID e o Client Secret do Google.\n');
-}
-
-let valores = lerArquivo();
-
-// A chave de sessao e gerada aqui, nao copiada de lugar nenhum. 32 bytes de
-// aleatoriedade criptografica em base64url.
-if (!valores.SESSION_SECRET || valores.SESSION_SECRET === 'PREENCHER') {
-  const chave = randomBytes(32).toString('base64url');
-  appendFileSync(CAMINHO, `\nSESSION_SECRET=${chave}\n`, 'utf8');
-  valores = lerArquivo();
-  console.log('SESSION_SECRET gerado (32 bytes aleatorios) e gravado em .dev.vars.');
-  console.log('O valor nao sera impresso em lugar nenhum.\n');
-}
-
-// Validacao de formato. Confere o formato, nunca mostra o conteudo.
 const problemas = [];
 
-for (const nome of [...PUBLICOS, ...SEGREDOS]) {
-  const valor = valores[nome];
-  if (!valor || valor === 'PREENCHER') {
-    problemas.push(`${nome}: ainda nao preenchido em .dev.vars`);
+console.log('Conferencia (sem exibir valores):');
+for (const nome of SEGREDOS) {
+  const valor = process.env[nome];
+  if (!valor) {
+    console.log(`  ${nome.padEnd(22)} FALTANDO`);
+    problemas.push(`${nome}: nao esta nas variaveis de ambiente`);
     continue;
-  }
-  if (nome === 'GOOGLE_CLIENT_ID' && !valor.endsWith('.apps.googleusercontent.com')) {
-    problemas.push(`${nome}: deveria terminar em .apps.googleusercontent.com`);
-  }
-  if (nome === 'GOOGLE_CLIENT_SECRET' && valor.length < 20) {
-    problemas.push(`${nome}: curto demais (${valor.length} caracteres), parece incompleto`);
   }
   if (/\s/.test(valor)) {
     problemas.push(`${nome}: contem espaco ou quebra de linha — provavel erro de colagem`);
   }
-}
-
-console.log('Conferencia (sem exibir valores):');
-for (const nome of [...PUBLICOS, ...SEGREDOS]) {
-  const valor = valores[nome];
-  const estado = !valor || valor === 'PREENCHER' ? 'FALTANDO' : `ok, ${valor.length} caracteres`;
-  console.log(`  ${nome.padEnd(22)} ${estado}`);
+  if (nome === 'GOOGLE_CLIENT_SECRET' && valor.length < 20) {
+    problemas.push(`${nome}: curto demais (${valor.length} caracteres), parece incompleto`);
+  }
+  console.log(`  ${nome.padEnd(22)} ok, ${valor.length} caracteres`);
 }
 
 if (problemas.length) {
   console.error('\nProblemas encontrados:');
   for (const p of problemas) console.error(`  - ${p}`);
+  console.error(`
+As variaveis sao de ambiente, nao de arquivo. No Windows:
+  Windows + R -> sysdm.cpl -> aba Avancado -> Variaveis de Ambiente
+  -> em "Variaveis de usuario" -> Novo...
+
+Depois de criar, FECHE E ABRA o VS Code (nao so o terminal): o terminal
+integrado herda o ambiente do VS Code, nao do Windows.
+`);
   process.exit(1);
 }
 
@@ -145,10 +92,10 @@ if (!ENVIAR) {
 }
 
 const projeto = nomeDoProjeto();
-console.log(`\nEnviando segredos para o projeto Pages "${projeto}"...\n`);
+console.log(`\nEnviando para o projeto Pages "${projeto}"...\n`);
 
 for (const nome of SEGREDOS) {
-  await enviarSegredo(nome, valores[nome], projeto);
+  await enviarSegredo(nome, process.env[nome], projeto);
   console.log(`  ${nome} enviado.`);
 }
 
