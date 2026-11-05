@@ -69,3 +69,12 @@ custa mais tempo do que um que admite a duvida.
 4. `frontend-developer` troca o array local pelas chamadas a API.
 5. `frontend-reviewer` confere acessibilidade e teclado.
 6. `devops-ci` fecha o workflow de CI e o deploy.
+
+## Procedimentos registrados
+
+- `docs/oauth-cloudflare.md` — como configurar o login com Google e o D1 neste
+  tipo de projeto, do deploy ao login funcionando, com as armadilhas que ja
+  custaram tempo e marcando quais passos exigem uma pessoa.
+
+Qualquer agente que for mexer em autenticacao, segredos ou banco le esse arquivo
+antes de comecar.

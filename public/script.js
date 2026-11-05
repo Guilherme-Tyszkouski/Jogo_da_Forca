@@ -34,36 +34,23 @@ function normalizeLetter(letter) {
   return letter.normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
 
-async function pedir(caminho, corpo) {
-  const resposta = await fetch(caminho, {
-    method: 'POST',
-    headers: corpo ? { 'Content-Type': 'application/json' } : undefined,
-    body: corpo ? JSON.stringify(corpo) : undefined
-  });
-  const dados = await resposta.json().catch(() => ({}));
-  if (!resposta.ok) throw Object.assign(new Error(dados.erro || 'Falha'), { status: resposta.status });
-  return dados;
-}
+// A implementacao vive em comum.js, compartilhada com o multiplayer.
+const pedir = (caminho, corpo) => ForcaComum.pedir(caminho, corpo);
 
 // ----------------------------------------------------------------- sessao
 
 async function carregarUsuario() {
-  try {
-    const dados = await (await fetch('/api/auth/eu')).json();
-    autenticado = dados.autenticado === true;
-    if (autenticado) {
-      const primeiro = (dados.nome || dados.email || 'Jogador').split(' ')[0];
-      categoryElement.textContent = `JOGADOR: ${primeiro.toUpperCase()}`;
-    } else {
-      categoryElement.replaceChildren();
-      const entrar = document.createElement('a');
-      entrar.href = '/api/auth/login';
-      entrar.textContent = 'ENTRAR COM GOOGLE';
-      categoryElement.append(entrar);
-    }
-  } catch {
-    autenticado = false;
-    categoryElement.textContent = 'SERVIDOR INDISPONIVEL';
+  const usuario = await ForcaComum.carregarUsuario();
+  autenticado = Boolean(usuario);
+
+  if (autenticado) {
+    categoryElement.textContent = `JOGADOR: ${ForcaComum.primeiroNome(usuario).toUpperCase()}`;
+  } else {
+    categoryElement.replaceChildren();
+    const entrar = document.createElement('a');
+    entrar.href = '/api/auth/login';
+    entrar.textContent = 'ENTRAR COM GOOGLE';
+    categoryElement.append(entrar);
   }
   return autenticado;
 }
@@ -249,6 +236,9 @@ document.getElementById('soundButton').addEventListener('click', event => {
 });
 
 document.addEventListener('keydown', event => {
+  // O teclado fisico so age na tela solo; no duelo quem escuta e o
+  // multiplayer.js, senao a mesma tecla jogaria nas duas partidas.
+  if (document.body.dataset.tela !== 'solo') return;
   if (event.ctrlKey || event.metaKey || event.altKey || dialog.open) return;
   const letter = normalizeLetter(event.key).toUpperCase();
   if (/^[A-Z]$/.test(letter)) guess(letter);
@@ -278,6 +268,12 @@ function resizeDust() {
 }
 
 function animateDust() {
+  // O cenario e so do modo solo: parar de desenhar quando a tela e outra
+  // economiza bateria sem precisar desmontar o canvas.
+  if (document.body.dataset.tela !== 'solo') {
+    requestAnimationFrame(animateDust);
+    return;
+  }
   dustContext.clearRect(0, 0, window.innerWidth, window.innerHeight);
   dustParticles.forEach(particle => {
     particle.x += particle.drift;
@@ -295,13 +291,22 @@ function animateDust() {
 
 window.addEventListener('resize', resizeDust);
 document.addEventListener('pointermove', event => {
+  if (document.body.dataset.tela !== 'solo') return;
+
+  const mesaLeft = document.querySelector('.mesa-left');
+  const mesaRight = document.querySelector('.mesa-right');
+  const sun = document.querySelector('.western-sun');
+  const shell = document.querySelector('#view-solo .game-card');
+  const hangman = document.querySelector('#view-solo .hangman');
+  if (!mesaLeft || !mesaRight || !sun || !shell || !hangman) return;
+
   const x = (event.clientX / window.innerWidth - .5) * 14;
   const y = (event.clientY / window.innerHeight - .5) * 8;
-  document.querySelector('.mesa-left').style.transform = `translate(${x * -0.25}px, ${y * -0.2}px)`;
-  document.querySelector('.mesa-right').style.transform = `translate(${x * -0.4}px, ${y * -0.2}px) scale(.75)`;
-  document.querySelector('.western-sun').style.transform = `translate(${-x}px, ${-y}px)`;
-  document.querySelector('.game-shell').style.transform = `rotateY(${x * 0.14}deg) rotateX(${-y * 0.12}deg)`;
-  document.querySelector('.hangman').style.transform = `rotateY(${-8 + x * 0.35}deg) rotateX(${2 - y * 0.25}deg)`;
+  mesaLeft.style.transform = `translate(${x * -0.25}px, ${y * -0.2}px)`;
+  mesaRight.style.transform = `translate(${x * -0.4}px, ${y * -0.2}px) scale(.75)`;
+  sun.style.transform = `translate(${-x}px, ${-y}px)`;
+  shell.style.transform = `rotateY(${x * 0.14}deg) rotateX(${-y * 0.12}deg)`;
+  hangman.style.transform = `rotateY(${-8 + x * 0.35}deg) rotateX(${2 - y * 0.25}deg)`;
 });
 resizeDust();
 animateDust();
@@ -309,4 +314,12 @@ animateDust();
 // ------------------------------------------------------------------ inicio
 
 makeKeyboard();
-carregarUsuario().then(ok => { if (ok) newGame(); });
+
+// O multiplayer.js decide quando cada tela aparece; aqui so expomos as acoes
+// do modo solo, que antes comecavam sozinhas ao carregar a pagina.
+window.ForcaSolo = {
+  iniciar: () => newGame(),
+  parar: () => { if (dialog.open) dialog.close(); },
+  obterEstado: () => estado,
+  tocar: playTone
+};

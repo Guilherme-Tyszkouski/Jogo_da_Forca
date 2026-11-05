@@ -6,3 +6,7 @@ node_modules/
 
 # Cache do wrangler: guarda o Account ID do Cloudflare e o banco local.
 .wrangler/
+
+# Cache do buscador de definicoes. E dado derivado: da para refazer rodando
+# o script de novo, entao nao precisa ocupar espaco no repositorio.
+.cache/
