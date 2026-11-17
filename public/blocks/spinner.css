@@ -1,0 +1,16 @@
+.spinner {
+  box-sizing: border-box;
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, .18);
+  border-top-color: var(--app-green);
+  border-radius: 50%;
+  animation: spinner-spin 1s linear infinite;
+}
+
+@keyframes spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

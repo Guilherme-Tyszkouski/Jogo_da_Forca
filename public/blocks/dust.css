@@ -1,0 +1,16 @@
+/* Canvas de poeira do cenario solo. O tamanho na tela fica aqui; o JS so
+   ajusta os atributos width/height (pixels do desenho). */
+.dust {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.page_screen_solo .dust {
+  display: block;
+}

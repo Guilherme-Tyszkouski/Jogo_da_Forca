@@ -1,0 +1,16 @@
+/* Sol do cenario solo. --parallax-x e --parallax-y sao numeros sem unidade
+   escritos pelo JS no <body> (excecao aprovada para valores continuos). */
+.sun {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  transform: translate(calc(var(--parallax-x, 0) * -1px), calc(var(--parallax-y, 0) * -1px));
+  background: radial-gradient(circle at 77% 22%, rgba(255, 236, 178, .78) 0 3.5%, rgba(255, 226, 157, .18) 9%, transparent 18%);
+}
+
+.page_screen_solo .sun {
+  display: block;
+}

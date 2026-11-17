@@ -1,0 +1,82 @@
+/* Painel da palavra: categoria, casas das letras e dica.
+   Solo: .word. Duelo: .word.word_theme_dark. */
+.word {
+  box-sizing: border-box;
+  text-align: center;
+  padding-right: 4%;
+}
+
+.word__category {
+  margin: 0 0 30px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .22em;
+}
+
+.word__letters {
+  min-height: 72px;
+  display: flex;
+  justify-content: center;
+  gap: clamp(5px, 1vw, 12px);
+}
+
+.word__slot {
+  box-sizing: border-box;
+  width: clamp(28px, 4vw, 48px);
+  height: 56px;
+  border-bottom: 3px solid var(--ink);
+  display: grid;
+  place-items: end center;
+  padding-bottom: 5px;
+  font-family: Georgia, serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.word__hint {
+  min-height: 20px;
+  margin: 22px 0 0;
+  color: var(--orange);
+  font-family: Georgia, serif;
+  font-size: 17px;
+  font-style: italic;
+}
+
+.word_theme_dark .word__category {
+  color: var(--app-muted);
+}
+
+.word_theme_dark .word__letters {
+  flex-wrap: wrap;
+}
+
+.word_theme_dark .word__slot {
+  width: clamp(20px, 3vw, 40px);
+  height: 50px;
+  border-bottom-color: var(--app-duel-ink);
+  color: var(--white);
+  font-size: clamp(22px, 3vw, 36px);
+}
+
+.word_theme_dark .word__hint {
+  color: var(--app-duel-hint);
+}
+
+@media (max-width: 700px) {
+  .word {
+    padding: 0 0 24px;
+  }
+
+  .word__category {
+    margin-bottom: 18px;
+  }
+}
+
+@media (max-width: 420px) {
+  .word__slot {
+    width: 25px;
+    height: 48px;
+  }
+}

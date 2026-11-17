@@ -1,0 +1,36 @@
+/* Cores e fontes do tema. Fase 1: valores atuais, para nao mudar a aparencia.
+   Na Fase 3 entram os valores da paleta (docs/piranha-hangman-v2.md, 3.3):
+   --color-bg #161512, --color-text #EDEDED, --color-primary #81B64C,
+   --color-danger #E05252, e os novos --color-stage, --color-card,
+   --color-text-muted, --color-water, --color-piranha. */
+:root {
+  --color-bg: #111;
+  --color-text: #e6e6e6;
+  --color-primary: #7ee787;
+  --color-primary-bg: #1f3d27;
+  --color-danger: #ff7b72;
+  --color-danger-bg: #3d1f1f;
+  --color-stage-border: #444;
+  --color-control-bg: #2a2a3a;
+  --color-control-border: #555;
+  --color-focus: #f5c542;
+  --color-text-muted: #9a9a9a; /* paleta 3.3; 6.7:1 sobre #111 */
+  --font-text: system-ui, sans-serif;
+  --font-key: monospace;
+}
+
+.page {
+  box-sizing: border-box; /* a borda e o padding entram na altura, sem rolagem */
+  margin: 0;
+  padding: 16px;
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-text);
+  line-height: normal; /* desfaz o 1.15 do normalize, para manter a altura do texto */
+  text-align: center;
+}

@@ -1,0 +1,48 @@
+/* Teclado na tela: as teclas quebram linha sozinhas */
+.keyboard {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: 600px;
+}
+
+.keyboard__key {
+  box-sizing: border-box;
+  min-width: 40px;
+  min-height: 44px;
+  font: bold 18px var(--font-key);
+  border: 2px solid var(--color-control-border);
+  border-radius: 6px;
+  background: var(--color-control-bg);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+/* :where() zera a especificidade do :disabled, para os estados abaixo
+   (que tambem ficam desabilitados) ganharem pela ordem */
+.keyboard__key:where(:disabled) {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.keyboard__key:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* opacity: 1 = sem transparencia, para a cor da letra ter bom contraste */
+.keyboard__key_state_correct {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  opacity: 1;
+}
+
+.keyboard__key_state_wrong {
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  text-decoration: line-through;
+  opacity: 1;
+}

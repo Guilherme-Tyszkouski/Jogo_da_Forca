@@ -1,0 +1,141 @@
+/* Sala de espera (antigo .sala-card). */
+.room {
+  box-sizing: border-box;
+  max-width: 720px;
+  margin: 34px auto;
+  padding: 34px;
+  border: 1px solid var(--app-line);
+  border-radius: 14px;
+  background: var(--app-panel);
+  text-align: center;
+}
+
+.room__title {
+  margin: 16px 0 8px;
+  font-size: clamp(26px, 4vw, 34px);
+  letter-spacing: -.01em;
+}
+
+.room__sub {
+  margin: 0 auto 26px;
+  max-width: 54ch;
+  color: var(--app-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.room__code-box {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  border: 1px dashed var(--app-ring);
+  border-radius: 12px;
+  background: var(--app-chip);
+}
+
+.room__code-label {
+  color: var(--app-muted);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.room__code-value {
+  box-sizing: border-box;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: clamp(30px, 6vw, 42px);
+  letter-spacing: .28em;
+  padding-left: .28em;
+  color: var(--white);
+}
+
+.room__share {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* font-family e line-height explicitos: desfazem o normalize e mantem o
+   Arial padrao do navegador no input, como era antes. */
+.room__share-input {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  margin: 0;
+  padding: 0 12px;
+  border: 1px solid var(--app-line);
+  border-radius: 6px;
+  background: var(--app-input);
+  color: var(--app-muted);
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  line-height: normal;
+}
+
+.room__slots {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 14px;
+  margin: 28px 0;
+}
+
+.room__slot {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 12px;
+  border: 1px solid var(--app-card-line);
+  border-radius: 12px;
+  background: var(--app-card);
+}
+
+.room__slot_state_empty {
+  border-style: dashed;
+  color: var(--app-muted);
+}
+
+.room__vs {
+  color: var(--app-muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.room__slot-status {
+  color: var(--app-muted);
+  font-size: 12px;
+}
+
+.room__actions {
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 620px) {
+  .room {
+    padding: 22px;
+    margin-top: 18px;
+  }
+
+  .room__slots {
+    grid-template-columns: 1fr;
+  }
+
+  .room__vs {
+    display: none;
+  }
+
+  .room__share {
+    flex-wrap: wrap;
+  }
+
+  .room__share-input {
+    flex-basis: 100%;
+  }
+}

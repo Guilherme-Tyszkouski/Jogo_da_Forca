@@ -1,0 +1,14 @@
+.app {
+  box-sizing: border-box;
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 48px;
+}
+
+@media (max-width: 620px) {
+  .app {
+    width: calc(100% - 24px);
+  }
+}

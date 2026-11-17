@@ -1,0 +1,101 @@
+/* Botao do app (hub, sala, duelo). Vale para <button> e <a>. */
+.button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--app-text);
+  background: transparent;
+  cursor: pointer;
+  transition: transform .12s, background .12s, box-shadow .12s;
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.button_style_primary {
+  background: var(--app-green);
+  color: var(--app-on-green);
+  box-shadow: 0 3px 0 var(--app-green-shadow);
+}
+
+.button_style_primary:hover:not(:disabled) {
+  background: var(--app-green-hover);
+}
+
+.button_style_secondary {
+  background: var(--app-elev);
+  color: var(--app-text);
+}
+
+.button_style_secondary:hover:not(:disabled) {
+  background: var(--app-elev-hover);
+}
+
+.button_style_ghost {
+  background: transparent;
+  color: var(--app-text);
+  border: 1px solid var(--app-line);
+}
+
+.button_style_ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, .06);
+}
+
+.button_style_danger-ghost {
+  background: transparent;
+  color: var(--app-danger-text);
+  border: 1px solid rgba(202, 52, 49, .5);
+}
+
+.button_style_danger-ghost:hover:not(:disabled) {
+  background: rgba(202, 52, 49, .12);
+}
+
+.button_style_whatsapp {
+  background: var(--app-whatsapp);
+  color: var(--app-on-whatsapp);
+}
+
+.button_width_full {
+  width: 100%;
+}
+
+.button_size_sm {
+  height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+.button_size_lg {
+  height: 52px;
+  padding: 0 26px;
+  font-size: 16px;
+}
+
+/* No modo solo o botao fantasma usa as cores do papel. Fica no fim do
+   arquivo para vencer o :hover acima (mesma especificidade). */
+.page_screen_solo .button_style_ghost {
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.page_screen_solo .button_style_ghost:hover {
+  background: var(--soft);
+}

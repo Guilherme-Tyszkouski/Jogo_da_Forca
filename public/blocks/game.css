@@ -1,0 +1,138 @@
+/* Cartao de papel do modo solo (antigo .game-card). */
+.game {
+  box-sizing: border-box;
+  position: relative;
+  margin-top: 8px;
+  padding: 28px clamp(18px, 4vw, 56px) 36px;
+  border: 1px solid rgba(73, 48, 31, .32);
+  border-radius: 3px;
+  background:
+    linear-gradient(90deg, rgba(91, 58, 35, .035) 1px, transparent 1px) 0 0 / 18px 18px,
+    var(--paper);
+  box-shadow:
+    0 28px 80px rgba(48, 29, 18, .28),
+    18px 22px 45px rgba(48, 29, 18, .18),
+    inset 0 0 45px rgba(105, 67, 38, .12);
+  backdrop-filter: blur(2px);
+  /* Inclinacao com --parallax-x/--parallax-y (escritas pelo JS no <body>).
+     Observacao: a animacao game-arrive (fill both) prende o transform em
+     translateY(0), entao esta inclinacao nao aparece, igual ao CSS antigo. */
+  transform: translateZ(18px) rotateY(calc(var(--parallax-x, 0) * .14deg)) rotateX(calc(var(--parallax-y, 0) * -.12deg));
+  animation: game-arrive .7s ease-out both;
+}
+
+@keyframes game-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.game::before,
+.game::after {
+  content: "";
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  border-color: rgba(58, 37, 24, .45);
+}
+
+.game::before {
+  left: 10px;
+  top: 10px;
+  border-left: 2px solid;
+  border-top: 2px solid;
+}
+
+.game::after {
+  right: 10px;
+  bottom: 10px;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+}
+
+.game__status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.game__eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+
+.game__mistakes {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.game__play {
+  min-height: 330px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+}
+
+.game__actions {
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.game__button {
+  box-sizing: border-box;
+  min-width: 150px;
+  height: 46px;
+  border-radius: 3px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+
+.game__button_style_hint {
+  border: 1px solid var(--ink);
+  background: transparent;
+}
+
+.game__button_style_new {
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--white);
+}
+
+@media (max-width: 700px) {
+  .game {
+    padding-top: 20px;
+  }
+
+  .game__play {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .game__status {
+    align-items: flex-end;
+  }
+
+  .game__eyebrow {
+    max-width: 150px;
+  }
+
+  .game__button {
+    min-width: 0;
+    flex: 1;
+  }
+}

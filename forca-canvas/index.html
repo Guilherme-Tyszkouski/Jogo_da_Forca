@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forca Canvas</title>
+  <link rel="stylesheet" href="./pages/index.css">
+  <!-- defer: os scripts rodam na ordem, depois que a pagina foi lida -->
+  <script src="./scripts/tema.js" defer></script>
+  <script src="./scripts/estado.js" defer></script>
+  <script src="./scripts/particulas.js" defer></script>
+  <script src="./scripts/cenario.js" defer></script>
+  <script src="./scripts/boneco.js" defer></script>
+  <script src="./scripts/boneco-desenho.js" defer></script>
+  <script src="./scripts/piranha.js" defer></script>
+  <script src="./scripts/palco.js" defer></script>
+  <script src="./scripts/teclado.js" defer></script>
+  <script src="./scripts/main.js" defer></script>
+</head>
+<body class="page">
+  <!-- Instrucao visivel para quem chega -->
+  <p>Digite letras no teclado (ou toque nas letras abaixo). Quando a partida acabar, aperte Enter.</p>
+
+  <!-- A "lousa": o HTML so coloca ela aqui. Quem desenha e o palco.js -->
+  <canvas id="tela" class="stage" width="600" height="440" role="img"
+          aria-label="Jogo da forca: um boneco pendurado sobre um lago com uma piranha"></canvas>
+
+  <!-- O estado.js acrescenta aqui cada aviso, e o leitor de tela anuncia.
+       role="log": e uma lista de avisos que cresce, lida na ordem -->
+  <div id="status" class="visually-hidden" role="log" aria-live="polite"></div>
+
+  <!-- O teclado.js cria um botao para cada letra aqui dentro -->
+  <div id="teclado" class="keyboard" role="group" aria-label="Teclado de letras"></div>
+
+  <!-- So aparece quando a partida acaba. O resultado (escondido da tela)
+       e lido junto com o botao, por causa do aria-describedby -->
+  <button id="novaPartida" class="button" type="button" hidden
+          aria-describedby="resultado">Nova partida</button>
+  <p id="resultado" class="visually-hidden"></p>
+
+  <!-- Ajustes: desligar a tremida de tela (o cenario.js le e lembra a escolha) -->
+  <div class="settings">
+    <label class="settings__label">
+      <input id="tremer" class="settings__checkbox" type="checkbox" checked
+             aria-describedby="tremerMotivo">
+      Tremer a tela quando a piranha morde
+    </label>
+    <!-- So aparece com "menos movimento" no sistema (o cenario.js mostra) -->
+    <p class="settings__hint" id="tremerMotivo" hidden>Desligado: seu sistema pede menos movimento.</p>
+  </div>
+</body>
+</html>

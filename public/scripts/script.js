@@ -61,7 +61,7 @@ function renderWord() {
   wordElement.replaceChildren();
   estado.reveladas.forEach(caractere => {
     const slot = document.createElement('span');
-    slot.className = 'letter-slot';
+    slot.className = 'word__slot';
     slot.textContent = caractere ?? '';
     wordElement.append(slot);
   });
@@ -77,9 +77,9 @@ function updateMistakes() {
 }
 
 function showBodyPart(index) {
-  const part = document.querySelector(`.figure-part[data-part="${index}"]`);
-  if (part) part.classList.add('visible');
-  if (index === estado.maxErros - 1) document.querySelector('.face').classList.add('visible');
+  const part = document.querySelector(`.hangman__part[data-part="${index}"]`);
+  if (part) part.classList.add('hangman__part_state_visible');
+  if (index === estado.maxErros - 1) document.querySelector('.hangman__face').classList.add('hangman__face_state_visible');
 }
 
 function sincronizarBoneco() {
@@ -87,7 +87,7 @@ function sincronizarBoneco() {
 }
 
 function travarTeclado(travado) {
-  document.querySelectorAll('.key').forEach(key => {
+  document.querySelectorAll('.keyboard__key').forEach(key => {
     if (travado) key.disabled = true;
   });
   hintButton.disabled = travado;
@@ -127,16 +127,16 @@ async function newGame() {
 
   if (dialog.open) dialog.close();
   hintElement.textContent = '';
-  document.querySelectorAll('.figure-part, .face').forEach(p => p.classList.remove('visible'));
-  document.querySelectorAll('.key').forEach(key => {
+  document.querySelectorAll('.hangman__part, .hangman__face').forEach(p => p.classList.remove('hangman__part_state_visible', 'hangman__face_state_visible'));
+  document.querySelectorAll('.keyboard__key').forEach(key => {
     key.disabled = false;
-    key.classList.remove('correct', 'wrong');
+    key.classList.remove('keyboard__key_state_correct', 'keyboard__key_state_wrong');
   });
   hintButton.disabled = false;
 
   renderWord();
   updateMistakes();
-  document.querySelector('.key:not([disabled])')?.focus();
+  document.querySelector('.keyboard__key:not([disabled])')?.focus();
 }
 
 function aplicarResposta(resposta, botao) {
@@ -144,10 +144,10 @@ function aplicarResposta(resposta, botao) {
     for (const { posicao, caractere } of resposta.reveladas) {
       estado.reveladas[posicao] = caractere;
     }
-    botao?.classList.add('correct');
+    botao?.classList.add('keyboard__key_state_correct');
     playTone(520);
   } else {
-    botao?.classList.add('wrong');
+    botao?.classList.add('keyboard__key_state_wrong');
     playTone(180);
   }
 
@@ -203,7 +203,7 @@ function mostrarDica() {
 function makeKeyboard() {
   [...alphabet].forEach(letter => {
     const button = document.createElement('button');
-    button.className = 'key';
+    button.className = 'keyboard__key';
     button.type = 'button';
     button.textContent = letter;
     button.dataset.letter = letter;
@@ -232,6 +232,7 @@ document.getElementById('dialogButton').addEventListener('click', newGame);
 document.getElementById('soundButton').addEventListener('click', event => {
   soundEnabled = !soundEnabled;
   event.currentTarget.setAttribute('aria-pressed', String(soundEnabled));
+  event.currentTarget.classList.toggle('icon-button_state_pressed', soundEnabled);
   event.currentTarget.setAttribute('aria-label', soundEnabled ? 'Desativar som' : 'Ativar som');
 });
 
@@ -254,8 +255,6 @@ function resizeDust() {
   const scale = window.devicePixelRatio || 1;
   dustCanvas.width = window.innerWidth * scale;
   dustCanvas.height = window.innerHeight * scale;
-  dustCanvas.style.width = `${window.innerWidth}px`;
-  dustCanvas.style.height = `${window.innerHeight}px`;
   dustContext.setTransform(scale, 0, 0, scale, 0, 0);
   dustParticles = Array.from({ length: Math.min(90, window.innerWidth / 14) }, () => ({
     x: Math.random() * window.innerWidth,
@@ -293,20 +292,10 @@ window.addEventListener('resize', resizeDust);
 document.addEventListener('pointermove', event => {
   if (document.body.dataset.tela !== 'solo') return;
 
-  const mesaLeft = document.querySelector('.mesa-left');
-  const mesaRight = document.querySelector('.mesa-right');
-  const sun = document.querySelector('.western-sun');
-  const shell = document.querySelector('#view-solo .game-card');
-  const hangman = document.querySelector('#view-solo .hangman');
-  if (!mesaLeft || !mesaRight || !sun || !shell || !hangman) return;
-
   const x = (event.clientX / window.innerWidth - .5) * 14;
   const y = (event.clientY / window.innerHeight - .5) * 8;
-  mesaLeft.style.transform = `translate(${x * -0.25}px, ${y * -0.2}px)`;
-  mesaRight.style.transform = `translate(${x * -0.4}px, ${y * -0.2}px) scale(.75)`;
-  sun.style.transform = `translate(${-x}px, ${-y}px)`;
-  shell.style.transform = `rotateY(${x * 0.14}deg) rotateX(${-y * 0.12}deg)`;
-  hangman.style.transform = `rotateY(${-8 + x * 0.35}deg) rotateX(${2 - y * 0.25}deg)`;
+  document.body.style.setProperty('--parallax-x', x);
+  document.body.style.setProperty('--parallax-y', y);
 });
 resizeDust();
 animateDust();

@@ -1,0 +1,7 @@
+/* Mensagem curta de status abaixo de um formulario ou acao (antigo .panel-msg). */
+.notice {
+  min-height: 18px;
+  margin: 10px 0 0;
+  color: var(--app-muted);
+  font-size: 12px;
+}

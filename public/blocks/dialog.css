@@ -1,0 +1,93 @@
+/* Dialogos de fim de partida. Solo: .dialog. Duelo: .dialog.dialog_theme_dark. */
+.dialog {
+  box-sizing: border-box;
+  width: min(420px, calc(100% - 32px));
+  border: 0;
+  border-radius: 6px;
+  padding: 38px;
+  text-align: center;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .2);
+}
+
+.dialog::backdrop {
+  background: rgba(32, 32, 29, .62);
+}
+
+.dialog_theme_dark {
+  border: 1px solid var(--app-line);
+  background: var(--app-panel);
+  color: var(--app-text);
+}
+
+.dialog__icon {
+  box-sizing: border-box;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--orange);
+  color: var(--white);
+  font-size: 28px;
+}
+
+.dialog__title {
+  margin: 12px 0 8px;
+  font-family: Georgia, serif;
+  font-size: 34px;
+}
+
+.dialog_theme_dark .dialog__title {
+  color: var(--app-text);
+  font-family: inherit;
+}
+
+.dialog__message {
+  margin: 0 0 24px;
+  color: var(--muted);
+}
+
+.dialog_theme_dark .dialog__message {
+  color: var(--app-muted);
+  line-height: 1.55;
+}
+
+/* Botao unico do dialogo solo ("Jogar novamente"). */
+.dialog__button {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 150px;
+  height: 46px;
+  border: 1px solid var(--ink);
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--white);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+
+.dialog__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Mix com .button nos botoes do dialogo do duelo: so o que o .button nao
+   define (o antigo "dialog button" acrescentava isso aos .btn). */
+.dialog__action {
+  width: 100%;
+  min-width: 150px;
+  letter-spacing: .08em;
+}
+
+@media (max-width: 620px) {
+  .dialog__actions {
+    grid-template-columns: 1fr;
+  }
+}

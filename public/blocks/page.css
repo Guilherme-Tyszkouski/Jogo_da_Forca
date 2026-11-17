@@ -1,0 +1,100 @@
+/* Cores do tema. Fase 1: os mesmos valores do antigo styles.css, para nao
+   mudar a aparencia. Na Fase 3 entram os tokens da paleta nova
+   (docs/piranha-hangman-v2.md, secao 3.3). Os rgba() de sombras, brilhos e
+   gradientes continuam escritos nos blocos por enquanto. */
+:root {
+  /* Modo solo (cenario western, cartao de papel) */
+  --paper: rgba(232, 218, 190, .94);
+  --ink: #241a13;
+  --muted: #75624f;
+  --orange: #b74225;
+  --gold: #d6ac66;
+  --line: rgba(70, 48, 33, .28);
+  --soft: rgba(255, 243, 216, .15);
+  --white: #fff;
+  --solo-sky-1: #526c73;
+  --solo-sky-2: #b27e58;
+  --solo-sky-3: #5c3b29;
+  --solo-sky-4: #291c16;
+  --solo-ground: #775137;
+  --solo-mesa: #7d6348;
+
+  /* Tema do app (hub e duelo): inspirado no play do chess.com. */
+  --app-bg: #302e2b;
+  --app-panel: #262421;
+  --app-elev: #3a3735;
+  --app-line: #423e3a;
+  --app-text: #e9e7e3;
+  --app-muted: #a8a29b;
+  --app-green: #81b64c;
+  --app-green-claro: #b7e08a;
+  --app-red: #ca3431;
+  --app-on-green: #1c2413;
+  --app-green-shadow: #5c8a34;
+  --app-green-hover: #95cc5a;
+  --app-elev-hover: #4a4744;
+  --app-danger-text: #e2726f;
+  --app-whatsapp: #25d366;
+  --app-on-whatsapp: #0b2d19;
+  --app-avatar: #4b4741;
+  --app-hero-1: #38362f;
+  --app-hero-2: #2a2926;
+  --app-hero-gallows: #6f6a60;
+  --app-hero-part: #c9c4ba;
+  --app-chip: #232220;
+  --app-input: #1f1e1c;
+  --app-ring: #4c4945;
+  --app-card: #2c2a27;
+  --app-card-line: #3b3834;
+  --app-pip: #4a4743;
+  --app-duel-gallows: #8a847a;
+  --app-duel-ink: #cfc9bd;
+  --app-duel-hint: #e0a96d;
+  --app-key: #34312e;
+  --app-key-line: #45413c;
+  --app-key-hover: #413d39;
+  --app-key-correct: #3f6b28;
+  --app-key-correct-line: #4f8332;
+}
+
+.page {
+  box-sizing: border-box;
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--app-bg);
+  color: var(--app-text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  line-height: normal; /* desfaz o 1.15 do normalize */
+}
+
+/* O cenario western e exclusivo do modo solo. O JS liga esta classe junto
+   com data-tela="solo". */
+.page_screen_solo {
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--solo-sky-1) 0%, var(--solo-sky-2) 43%, var(--solo-sky-3) 70%, var(--solo-sky-4) 100%);
+  font-family: Georgia, "Times New Roman", serif;
+  perspective: 1200px;
+}
+
+.page_screen_solo::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 73% 21%, rgba(255, 213, 139, .9) 0 2%, rgba(255, 192, 120, .26) 7%, transparent 18%),
+    linear-gradient(180deg, rgba(37, 70, 80, .55), rgba(194, 135, 91, .12) 55%, rgba(38, 24, 18, .48));
+}
+
+.page_screen_solo::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: .16;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}

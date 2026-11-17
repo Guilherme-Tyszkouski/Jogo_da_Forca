@@ -1,0 +1,32 @@
+/* Botao redondo so com icone (som). O JS liga icon-button_state_pressed
+   junto com aria-pressed="true". */
+.icon-button {
+  box-sizing: border-box;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.icon-button:hover,
+.icon-button:focus-visible {
+  background: var(--soft);
+}
+
+.icon-button_state_pressed {
+  color: var(--orange);
+}
+
+.icon-button__icon {
+  width: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}

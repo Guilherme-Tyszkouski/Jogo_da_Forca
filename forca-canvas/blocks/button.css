@@ -1,0 +1,18 @@
+/* Botao de acao (ex.: "Nova partida") */
+.button {
+  box-sizing: border-box;
+  min-width: 40px;
+  min-height: 44px;
+  padding: 0 16px;
+  font: bold 18px var(--font-text);
+  border: 2px solid var(--color-control-border);
+  border-radius: 6px;
+  background: var(--color-control-bg);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
