@@ -42,6 +42,36 @@ do limite, descreve o que precisa no resumo em vez de editar.
 | `database-specialist` | `migrations/**`, `scripts/**` | `functions/**`, arquivos de interface |
 | `devops-ci` | `.github/workflows/**`, `wrangler.toml`, `package.json` | codigo de aplicacao |
 | `canvas-game-developer` | `forca-canvas/**`, `docs/forca-canvas.md` | `public/**`, `functions/**`, `migrations/**` |
+| `css-architect` | `**/blocks/**`, `**/pages/**`, `**/vendor/**`, os `<link>` e as classes dos HTML | logica em JS, `functions/**`, `migrations/**` |
+
+Observacoes sobre sobreposicao:
+- `scripts/**` do `database-specialist` e a pasta `scripts/` da raiz. As pastas
+  `forca-canvas/scripts/` e `public/scripts/` sao de `canvas-game-developer` e
+  `frontend-developer`, respectivamente.
+- Dentro de `forca-canvas/` e `public/`, o CSS (`blocks/`, `pages/`, `vendor/`)
+  e do `css-architect`; o resto continua com o dono da pasta.
+
+## Padrao de codigo (obrigatorio)
+
+Regra do Guilherme para **todos** os projetos, nao so este. Referencia:
+repositorio `Guilherme-Tyszkouski/ERP-controle-de-estoque` (padrao TripleTen).
+Detalhes e modelo de pastas em `docs/piranha-hangman-v2.md`, secao 2.
+
+- Estrutura: `index.html` (so estrutura), `pages/index.css` (SO `@import`),
+  `blocks/` (um arquivo por bloco BEM), `vendor/` (`normalize.css`,
+  `fonts.css` so com `@font-face`, `fonts/*.woff2`), `scripts/`, `images/`.
+- BEM: `bloco`, `bloco__elemento`, `bloco__elemento_modificador_valor`.
+  Seletores so de classe: nada de `#id` nem de tag dentro dos blocos.
+- Proibido: `<style>` no HTML, atributo `style=""` e CSS montado no
+  JavaScript. O JS so liga e desliga classes.
+- Cores do tema: variaveis CSS no `:root` de `blocks/page.css`. As cores do
+  canvas ficam num unico objeto em `scripts/tema.js`, com os mesmos valores.
+  Nada de cor solta no codigo de desenho.
+- HTML com um so `<link rel="stylesheet" href="./pages/index.css">`; scripts
+  com `defer` no `<head>`, sem `type="module"` (abrir com dois cliques).
+- `.editorconfig` (2 espacos, `lf`, `utf-8`) e `.prettierignore`
+  (`vendor/normalize.css`) iguais aos do repositorio de referencia.
+- O `css-architect` revisa todo CSS novo ou alterado.
 
 ### Orquestracao
 

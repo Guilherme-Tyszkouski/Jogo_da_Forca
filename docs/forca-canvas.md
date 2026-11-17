@@ -28,7 +28,8 @@ jogos web (ex.: Jungle Gaming) pedem.
 - `jogo.js` tem estado do quadrado, `atualizar(dt)`, `desenhar()` e o laco com
   `requestAnimationFrame`. `Math.min(dt, 0.1)` evita teleporte ao trocar de aba.
 - Validado pelo Guilherme no navegador: o quadrado anda e volta nas paredes.
-- Criado o agente `canvas-game-developer` (`docs/canvas-game-developer.agent.md`) e a linha dele
+- Criado o agente `canvas-game-developer` (`.github/agents/canvas-game-developer.agent.md`, movido de `docs/`
+  na v2) e a linha dele
   no `AGENTS.md`.
 
 ### 2026-11-16 — Noite 2
