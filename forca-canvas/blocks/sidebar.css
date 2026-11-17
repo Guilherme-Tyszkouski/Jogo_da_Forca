@@ -1,0 +1,258 @@
+/* Barra lateral: marca, navegacao e perfil.
+   >= 640px: fixa a esquerda (sticky), recolhivel (sidebar_state_collapsed).
+   < 640px: menu que abre por cima da tela (sidebar_state_open). O painel.js
+   liga as classes e o atributo inert; o limite 639px e o mesmo dele. */
+.sidebar {
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--color-card);
+  border-right: 1px solid var(--color-border);
+}
+
+.sidebar__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px 12px 16px 16px;
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.sidebar__logo {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+}
+
+.sidebar__collapse {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: 700 22px var(--font-text);
+  cursor: pointer;
+}
+
+.sidebar__collapse:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.sidebar__collapse-icon {
+  line-height: 1;
+}
+
+.sidebar__nav {
+  padding: 8px 0;
+}
+
+.sidebar__list,
+.sidebar__submenu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sidebar__link {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  padding: 0 16px;
+  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.sidebar__link:hover {
+  background: var(--color-surface-hover);
+}
+
+.sidebar__link_state_active {
+  background: var(--color-surface);
+  box-shadow: inset 3px 0 0 var(--color-primary);
+  font-weight: 700;
+}
+
+/* Alto contraste: background e box-shadow somem; a marca vira uma borda */
+@media (forced-colors: active) {
+  .sidebar__link_state_active {
+    border-left: 4px solid Highlight;
+  }
+}
+
+.sidebar__icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.sidebar__submenu {
+  background: var(--color-surface);
+}
+
+/* Subitem com bolinha (como no mockup) */
+.sidebar__sublink {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 16px 0 30px;
+  color: var(--color-text);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.sidebar__sublink::before {
+  content: "";
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+
+.sidebar__sublink:hover {
+  background: var(--color-surface-hover);
+}
+
+/* Foco por dentro (offset negativo): a barra tem overflow e cortaria o contorno de fora */
+.sidebar__collapse:focus-visible,
+.sidebar__link:focus-visible,
+.sidebar__sublink:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: -3px;
+}
+
+.sidebar__label {
+  white-space: nowrap;
+}
+
+/* O nome do jogo pode quebrar em duas linhas, para nao passar por baixo do botao « */
+.sidebar__brand .sidebar__label {
+  white-space: normal;
+  line-height: 1.2;
+}
+
+/* O perfil fica na base da barra */
+.sidebar__profile {
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ---------------------------------------------------------- recolhida */
+
+.sidebar_state_collapsed .sidebar__top {
+  flex-direction: column;
+  padding: 12px 8px;
+}
+
+.sidebar_state_collapsed .sidebar__collapse-icon {
+  transform: rotate(180deg);
+}
+
+.sidebar_state_collapsed .sidebar__link {
+  justify-content: center;
+  padding: 0;
+}
+
+/* Recolhida, o subitem viraria so uma bolinha sem sentido: some. O link
+   "Jogar" leva ao mesmo lugar (#jogo) e continua acessivel */
+.sidebar_state_collapsed .sidebar__submenu {
+  display: none;
+}
+
+/* Textos somem da tela mas o leitor de tela continua lendo (tecnica do
+   visually-hidden). Nao e display: none de proposito: os links seguem com nome */
+/* O nick do perfil tambem leva o mix sidebar__label no HTML */
+.sidebar_state_collapsed .sidebar__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.sidebar_state_collapsed .sidebar__profile {
+  padding: 12px 8px;
+}
+
+/* ---------------------------------------------------------- celular */
+
+@media (max-width: 639px) {
+  /* Fechada: fora da tela e invisivel (alem do inert do painel.js) */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    /* Recorte de 62x62 no canto: deixa ver (e clicar) o botao de menu do
+       cabecalho preso (z 30, header.css), que fica embaixo. O clip-path
+       tambem vale para o clique, entao o toque nesse canto chega no botao */
+    clip-path: polygon(62px 0, 100% 0, 100% 100%, 0 100%, 0 62px, 62px 62px);
+    width: min(280px, 85vw);
+    height: auto;
+    align-self: auto; /* o "start" do desktop encolheria a caixa fixa (vale para posicionados) */
+    border-right: 0;
+    transform: translateX(-100%);
+    visibility: hidden;
+    /* Fechando: desliza e so depois some (visibility com atraso de 0.2s) */
+    transition: transform 0.2s ease, visibility 0s linear 0.2s;
+  }
+
+  /* Abrindo: visibility muda NA HORA (0s, sem atraso). Se ela tambem tivesse
+     transicao, no instante em que o painel.js chama focus() no primeiro link a
+     barra ainda estaria "hidden" e o foco nao entraria no menu */
+  .sidebar_state_open {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.2s ease, visibility 0s;
+  }
+
+  /* No celular nao ha "recolher": quem fecha e o botao de menu, o Esc ou o fundo */
+  .sidebar__collapse {
+    display: none;
+  }
+
+  /* 68px a esquerda = espaco do botao de menu (12px + 44px + 12px), que
+     aparece pelo recorte do canto (clip-path acima) no mesmo lugar */
+  .sidebar__top {
+    min-height: 44px;
+    padding: 12px 12px 12px 68px;
+  }
+}
+
+@media (max-width: 639px) and (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+}

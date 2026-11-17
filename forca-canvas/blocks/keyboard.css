@@ -1,22 +1,50 @@
-/* Teclado na tela: as teclas quebram linha sozinhas */
+/* Teclado na tela: teclas quadradas arredondadas.
+   Quantas por linha depende da largura do PROPRIO teclado (container query),
+   nao da tela: com a barra lateral aberta a coluna central pode ser estreita.
+   7 por linha (7-7-7-5), 9 (9-9-8) ou 13 (13-13). */
 .keyboard {
+  --keys-per-row: 7;
+  --keys-gap: 4px;
+  container-type: inline-size;
+  box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 6px;
-  max-width: 600px;
+  gap: 8px var(--keys-gap);
+  width: 100%;
 }
 
 .keyboard__key {
   box-sizing: border-box;
-  min-width: 40px;
-  min-height: 44px;
-  font: bold 18px var(--font-key);
-  border: 2px solid var(--color-control-border);
-  border-radius: 6px;
-  background: var(--color-control-bg);
+  flex: 0 0 calc((100% - (var(--keys-per-row) - 1) * var(--keys-gap)) / var(--keys-per-row));
+  min-width: 0;
+  height: 48px;
+  padding: 0;
+  font: 700 18px var(--font-text);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  background: var(--color-surface);
+  box-shadow: 0 3px 0 var(--color-key-shadow);
   color: var(--color-text);
   cursor: pointer;
+}
+
+/* A variavel muda no filho (a tecla), porque o container e o proprio .keyboard */
+@container (min-width: 460px) {
+  .keyboard__key {
+    --keys-per-row: 9;
+  }
+}
+
+@container (min-width: 600px) {
+  .keyboard__key {
+    --keys-per-row: 13;
+    height: 52px;
+  }
+}
+
+.keyboard__key:hover {
+  background: var(--color-surface-hover);
 }
 
 /* :where() zera a especificidade do :disabled, para os estados abaixo
@@ -26,23 +54,43 @@
   opacity: 0.8;
 }
 
+.keyboard__key:where(:disabled):hover {
+  background: var(--color-surface);
+}
+
 .keyboard__key:focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
 /* opacity: 1 = sem transparencia, para a cor da letra ter bom contraste */
-.keyboard__key_state_correct {
+.keyboard__key_state_correct,
+.keyboard__key_state_correct:hover {
   background: var(--color-primary-bg);
   border-color: var(--color-primary);
   color: var(--color-primary);
   opacity: 1;
 }
 
-.keyboard__key_state_wrong {
+.keyboard__key_state_wrong,
+.keyboard__key_state_wrong:hover {
   background: var(--color-danger-bg);
   border-color: var(--color-danger);
-  color: var(--color-danger);
+  color: var(--color-danger-text);
   text-decoration: line-through;
   opacity: 1;
+}
+
+/* Alto contraste: certa = borda grossa, errada = tracejada e riscada.
+   CanvasText e cor do sistema (keyword permitida so neste @media) */
+@media (forced-colors: active) {
+  .keyboard__key_state_correct,
+  .keyboard__key_state_correct:hover {
+    border: 3px solid CanvasText;
+  }
+
+  .keyboard__key_state_wrong,
+  .keyboard__key_state_wrong:hover {
+    border-style: dashed;
+  }
 }

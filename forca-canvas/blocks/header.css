@@ -1,0 +1,75 @@
+/* Cabecalho da coluna central: botao do menu (so no celular), titulo e instrucao */
+.header {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding-top: var(--page-gap);
+}
+
+/* So aparece abaixo de 640px (ver media query no fim) */
+.header__menu-button {
+  display: none;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  background: var(--color-card);
+  cursor: pointer;
+}
+
+.header__menu-button:hover {
+  background: var(--color-surface-hover);
+}
+
+.header__menu-button:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.header__menu-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.header__title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Ocupa a linha inteira, embaixo do titulo */
+.header__instructions {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 639px) {
+  /* Cabecalho preso no topo (page.css): fundo opaco para o conteudo que
+     rola nao aparecer por baixo */
+  .header {
+    background: var(--color-bg);
+  }
+
+  /* Com o menu aberto ele e o botao de fechar: aparece pelo recorte do
+     canto do menu (sidebar.css), no mesmo lugar */
+  .header__menu-button {
+    display: inline-flex;
+  }
+
+  .header__title {
+    font-size: 20px;
+  }
+
+  .header__instructions {
+    font-size: 14px;
+  }
+}

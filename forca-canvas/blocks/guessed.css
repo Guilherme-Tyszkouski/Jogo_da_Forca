@@ -1,0 +1,47 @@
+/* Letras ja chutadas, na ordem: verde certa, vermelha errada (teclado.js cria).
+   min-height: a fileira vazia (inicio da partida) ja ocupa o lugar, sem pulo */
+.guessed {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+}
+
+.guessed__letter {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--color-border-strong);
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.guessed__letter_state_correct {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+.guessed__letter_state_wrong {
+  border-color: var(--color-danger);
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+  text-decoration: line-through; /* como no teclado: nao depende so da cor */
+}
+
+/* Alto contraste (Windows): as cores viram as do sistema e as duas ficariam
+   iguais. Certa = borda cheia e mais grossa, errada = tracejada (+ riscada) */
+@media (forced-colors: active) {
+  .guessed__letter_state_correct {
+    border-width: 3px;
+  }
+
+  .guessed__letter_state_wrong {
+    border-style: dashed;
+  }
+}

@@ -84,28 +84,38 @@ function desenharPalavra() {
   }
 }
 
-// Lado direito: categoria, erros e letras erradas (acima do lago).
-// Fontes grandes porque no celular o canvas encolhe para quase metade.
+// Lado direito: categoria e erros (acima do lago). As letras erradas
+// ficam na fileira de chutes embaixo do palco, entao nao repetem aqui.
+// Fontes grandes porque no celular o canvas encolhe para quase metade
+// (a 360 px de tela, 30 px aqui viram uns 17 px).
+const INFO_X = 320;       // a esquerda daqui ficam o boneco e a piranha
+const INFO_LARGURA = 265; // ate x = 585, antes da borda do canvas
+
+// Fonte em negrito do maior tamanho (ate "tamanho") em que o texto cabe
+// na largura da coluna. Ex.: "PROFISSAO" fica um pouco menor que "PAIS".
+function fonteQueCabe(texto, tamanho) {
+  ctx.font = "bold " + tamanho + "px sans-serif";
+  while (tamanho > 24 && ctx.measureText(texto).width > INFO_LARGURA) {
+    tamanho -= 2;
+    ctx.font = "bold " + tamanho + "px sans-serif";
+  }
+}
+
 function desenharInfo() {
   if (estado.fimAnunciado) return; // a caixa de fim fica neste lugar
-  const x = 330;
   ctx.textAlign = "left";
 
   ctx.fillStyle = COR.fraco;
-  ctx.font = "24px sans-serif";
-  ctx.fillText("Categoria", x, 56);
+  ctx.font = "30px sans-serif";
+  ctx.fillText("Categoria", INFO_X, 64);
+
   ctx.fillStyle = COR.texto;
-  ctx.font = "bold 32px sans-serif";
-  ctx.fillText(estado.categoria, x, 92);
+  fonteQueCabe(estado.categoria, 46);
+  ctx.fillText(estado.categoria, INFO_X, 118);
 
   ctx.fillStyle = COR.fraco;
-  ctx.font = "24px sans-serif";
-  ctx.fillText("Erros: " + erros() + " de " + estado.maxErros, x, 136);
-
-  ctx.fillText("Letras erradas", x, 178);
-  ctx.fillStyle = COR.erro;
-  ctx.font = "bold 28px monospace";
-  ctx.fillText(estado.erradas.join(" "), x, 214);
+  ctx.font = "30px sans-serif";
+  ctx.fillText("Erros: " + erros() + " de " + estado.maxErros, INFO_X, 178);
 }
 
 // O recado do palco, embaixo do lago (ex.: "PIRANHA MORDENDO!").
@@ -147,7 +157,7 @@ function desenharMensagem() {
 
   ctx.fillStyle = COR.fraco;
   ctx.font = "24px sans-serif";
-  ctx.fillText("Enter ou o botao", meio, 188);
+  ctx.fillText("Enter ou Proxima partida", meio, 188);
   ctx.fillText("para jogar de novo", meio, 218);
 }
 

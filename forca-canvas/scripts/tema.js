@@ -2,24 +2,29 @@
 // O canvas nao le o CSS, entao as cores dele ficam aqui.
 // Nenhum outro script escreve cor solta: todos usam COR.alguma.
 
-// Cores. As marcadas com "paleta 3.3" vem do plano v2
-// (docs/piranha-hangman-v2.md); hoje elas existem so aqui e viram token CSS
-// em blocks/page.css na Fase 3. As outras sao cores proprias do desenho.
+// Cores. As que tem um token do lado sao os mesmos valores das variaveis CSS
+// de blocks/page.css (paleta 3.3 do docs/piranha-hangman-v2.md): mudou la,
+// muda aqui. As outras sao cores proprias do desenho.
+// Contraste do texto sobre o fundo do palco (#1E1E24), minimo 4.5:1:
+// texto 14.2, fraco 5.9, acerto 6.9, erro 4.9.
 const COR = {
-  fundo: "#1E1E24",         // paleta 3.3 (fundo do palco); vira token CSS na Fase 3
+  fundo: "#1E1E24",         // --color-stage (fundo do palco)
   forca: "#c9a46b",         // madeira da forca
   corda: "#d8c8a0",
   boneco: "#f5f5f5",
-  texto: "#e6e6e6",         // mesmo valor do --color-text de hoje
-  acerto: "#7ee787",        // mesmo valor do --color-primary de hoje
-  erro: "#ff7b72",          // mesmo valor do --color-danger de hoje
-  fraco: "#b4b9bf",
-  agua: "#2B6CB0",          // paleta 3.3 (agua do lago); vira token CSS na Fase 3
+  texto: "#EDEDED",         // --color-text
+  acerto: "#81B64C",        // --color-primary (letra certa, "Voce ganhou!")
+  // Mesmo matiz do --color-danger (#E05252), so mais claro: o #E05252 da
+  // 4.3:1 sobre o palco, e no celular o canvas encolhe e o texto fica pequeno.
+  // Este da 4.9:1.
+  erro: "#E36363",
+  fraco: "#9A9A9A",         // --color-text-muted (textos de apoio)
+  agua: "#2B6CB0",          // --color-water (lago)
   aguaClara: "#8fc1ef",     // ondas, respingos e gotas de suor
   margem: "#4a3b2a",        // terra da margem do lago
-  grama: "#81B64C",         // paleta 3.3 (verde principal); vira token CSS na Fase 3
-  osso: "#9A9A9A",          // paleta 3.3 (texto apagado); osso no lugar da parte comida
-  piranha: "#8B3FD9",       // paleta 3.3 (roxo da piranha); vira token CSS na Fase 3
+  grama: "#81B64C",         // --color-primary (o verde principal na grama)
+  osso: "#9A9A9A",          // --color-text-muted; osso no lugar da parte comida
+  piranha: "#8B3FD9",       // --color-piranha
   piranhaEscura: "#5e2a94", // cauda, barbatana e mandibula
   boca: "#24082f",          // dentro da boca (da piranha e do boneco gritando)
   dente: "#ffffff",         // dentes e branco do olho

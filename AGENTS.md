@@ -50,6 +50,13 @@ Observacoes sobre sobreposicao:
   `frontend-developer`, respectivamente.
 - Dentro de `forca-canvas/` e `public/`, o CSS (`blocks/`, `pages/`, `vendor/`)
   e do `css-architect`; o resto continua com o dono da pasta.
+- Painel do `forca-canvas/` (Fase 3 do plano v2): o `frontend-developer` pode
+  editar a estrutura do `forca-canvas/index.html` fora do palco (barra
+  lateral, cabecalho, cards, botoes), `forca-canvas/scripts/painel.js`,
+  `forca-canvas/scripts/dados-exemplo.js` e `forca-canvas/images/**`. O canvas
+  e os scripts do jogo (`tema`, `estado`, `boneco*`, `piranha`, `palco`,
+  `cenario`, `particulas`, `teclado`, `main`) continuam do
+  `canvas-game-developer`.
 
 ## Padrao de codigo (obrigatorio)
 

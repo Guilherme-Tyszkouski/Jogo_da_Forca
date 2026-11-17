@@ -392,6 +392,11 @@ Cofre: `C:\Users\Guilherme Tyszkouski\OneDrive\Documents\SEGUNDO CEREBRO`
   escrever só variáveis CSS (`style.setProperty("--tilt-x", x)`); o
   `transform` fica no bloco CSS. Escolhido pelo Guilherme em vez de remover o
   efeito ou trocar por estados fixos. Registrado no `AGENTS.md`.
+- 2026-11-17: o Guilherme mandou seguir para a **Fase 3** na mesma sessão. O
+  painel é montado no `forca-canvas/` com dados de exemplo (a seção 2.1 põe
+  `sidebar`, `card` e `profile` lá); ir para o `public/` é a Fase 4. O
+  `frontend-developer` ganhou acesso à estrutura do painel no `forca-canvas/`
+  (ver "Observações sobre sobreposição" no `AGENTS.md`).
 
 ---
 

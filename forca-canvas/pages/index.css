@@ -1,8 +1,13 @@
 @import url(../vendor/normalize.css);
 @import url(../vendor/fonts.css);
 @import url(../blocks/page.css);
+@import url(../blocks/sidebar.css);
+@import url(../blocks/header.css);
 @import url(../blocks/stage.css);
 @import url(../blocks/keyboard.css);
 @import url(../blocks/button.css);
+@import url(../blocks/card.css);
+@import url(../blocks/profile.css);
+@import url(../blocks/guessed.css);
 @import url(../blocks/settings.css);
 @import url(../blocks/visually-hidden.css);

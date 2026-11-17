@@ -1,0 +1,64 @@
+/* Perfil do jogador (base da barra lateral): avatar, status, nick e "Sair" */
+.profile {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+}
+
+/* Encolhe junto com a barra recolhida (max 64px, nunca mais largo que a barra) */
+.profile__avatar {
+  width: 100%;
+  max-width: 64px;
+  height: auto;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.profile__info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* Bolinha de status: verde online, cinza offline (o texto vai no visually-hidden) */
+.profile__status {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+
+.profile__status_state_online {
+  background: var(--color-primary);
+}
+
+.profile__status_state_offline {
+  background: var(--color-text-muted);
+}
+
+.profile__name {
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile__logout {
+  width: 100%;
+  padding: 0 8px;
+}
+
+/* Alto contraste: o fundo da bolinha sumiria; ela mantem as cores do tema */
+@media (forced-colors: active) {
+  .profile__status {
+    forced-color-adjust: none;
+  }
+}

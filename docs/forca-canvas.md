@@ -322,3 +322,57 @@ jogos web (ex.: Jungle Gaming) pedem.
   - Com reduced-motion, `bote` e `recuando` acontecem no mesmo quadro.
   - Textos do canvas ficam com ~13px no celular.
   - Os 2 bugs antigos do `public/` registrados na Fase 1.
+
+### 2026-11-17 — Fase 3: layout do painel (dados de exemplo)
+- O Guilherme mandou seguir para a Fase 3 na mesma sessao. Decisao do
+  orquestrador (secao 9 do plano): o painel fica no `forca-canvas/` com dados
+  de exemplo; o `frontend-developer` ganhou acesso a estrutura do painel ali
+  (registrado no `AGENTS.md`).
+- `frontend-developer`: `index.html` reorganizado (todos os ids do jogo
+  mantidos); barra lateral `<aside class="sidebar">` (Home, Jogar com
+  submenu, Ranking, Historico, Perfil; perfil e "Sair" na base), recolhivel
+  com `«` (lembrada no localStorage) e menu sobreposto abaixo de 640px
+  (modal: `inert` no resto e foco preso; Esc, clique fora e escolha fecham);
+  cabecalho; cards Historico (tabela com caption e `th scope`), Liga semanal
+  e Temas. `scripts/dados-exemplo.js` (ficticios; so "Tyszkowski" e real) e
+  `scripts/painel.js` (funcao auto-executavel, `textContent`, sem
+  `innerHTML`). 15 SVGs originais em `images/`. "Jogar" leva a `#jogo` sem
+  recarregar a partida.
+- `canvas-game-developer`: fileira de letras chutadas `#chutadas`
+  (`role="group"`, ordem do chute, ", certa"/", errada" para leitor de tela);
+  `COR` do `tema.js` alinhado a paleta 3.3 (texto vermelho `#E36363`, porque
+  `#E05252` da 4,34:1 no palco); canvas sem a lista "Letras erradas" e com
+  textos maiores (16,8px efetivos a 360px); teclado fisico ignora foco na
+  barra, no cabecalho, em links e campos (o checkbox da tremida continua
+  valendo, e do jogo).
+- `css-architect`: blocos `sidebar`, `header`, `profile`, `card`, `guessed`;
+  `button_style_primary` e `_outline`; paleta 3.3 no `:root` (+
+  `--color-danger-text #e36363`) e Inter; grade de 3 colunas, cards abaixo
+  do palco < 1024px, menu < 640px (mesmo breakpoint do `painel.js`),
+  cabecalho preso no celular; teclado por container query (7/9/13 por
+  linha); `@media (forced-colors: active)` para letras, teclas, link ativo,
+  status e cadeado.
+- Revisao do `frontend-reviewer`: nada critico/alto; 2 medios
+  (letra certa/errada so por cor; estados sumindo em alto contraste) e 10
+  baixos. Corrigidos: letra errada riscada; forced-colors; `role="group"`;
+  menu modal; barra como landmark; cabecalho preso; seletor que cruzava
+  blocos trocado por mix `profile__name sidebar__label`; submenu escondido
+  com a barra recolhida; tabela sem rolagem a 320px; lista duplicada fora do
+  canvas. Ficaram como estao (aceitaveis): teclas de 39px a 320px.
+- Validacao (executada pelos agentes, Chrome headless): capturas em 1280,
+  1024, 640, 360 e 320, barra recolhida, menu aberto com a pagina rolada e
+  forced-colors emulado; `scrollWidth` igual a largura em todas; contrastes
+  >= 4,5:1 (texto escuro no verde 7,59; letra errada riscada 4,73); testes do
+  painel e do menu passando; regressao da Fase 2 ok (6 erros: 4689 ms).
+  Conferido pelo orquestrador: pagina real sem erro nem arquivo faltando em
+  1280 e 360; zero `<style>`/`style=""`; so seletores de classe; nenhuma cor
+  fora do `:root`/`tema.js`; `node --check` em todos os scripts.
+- Nao validado: alto contraste real do Windows (o headless so ativa a media
+  query), leitor de tela real, Firefox/Safari, celular real, zoom real.
+- Pendente:
+  - Cabecalho preso ocupa ~107px a 360px e cobre o comeco do palco ao rolar
+    (encurtar ou esconder as instrucoes no celular?).
+  - Links Home, Ranking, Historico e Perfil sao `href="#"`; "Sair" nao faz
+    nada (Fase 5).
+  - Divergencias aceitas do mockup: botao "Proxima partida" so no fim; pais
+    como sigla; 26 teclas com as usadas coloridas.

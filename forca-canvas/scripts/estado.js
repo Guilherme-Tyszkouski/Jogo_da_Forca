@@ -2,7 +2,7 @@
 // Nada de desenho aqui. So declara: quem chama as funcoes e o main.js.
 
 const areaStatus = document.getElementById("status"); // texto para leitor de tela
-const textoResultado = document.getElementById("resultado"); // lido junto com o botao Nova partida
+const textoResultado = document.getElementById("resultado"); // lido junto com o botao Proxima partida
 let recadoPalco = ""; // recado curto que o palco desenha embaixo do lago
 
 // Lista de palavras do laboratorio (so para treino).
@@ -32,6 +32,7 @@ const estado = {
   categoria: "",
   certas: [],   // letras chutadas que estao na palavra
   erradas: [],  // letras chutadas que NAO estao na palavra
+  chutadas: [], // todas as letras chutadas, na ordem do chute (fileira de chutes)
   maxErros: 6,
   fase: "jogando",     // "jogando" | "ganhou" | "perdeu"
   fimAnunciado: false, // a tela de fim ja apareceu? (so depois das animacoes)
@@ -44,7 +45,7 @@ function erros() {
 
 // Sorteia uma palavra (diferente da anterior) e zera tudo
 function novaPartida() {
-  // O foco estava no botao "Nova partida"? Ele vai sumir, entao o foco
+  // O foco estava no botao "Proxima partida"? Ele vai sumir, entao o foco
   // passa para a primeira letra (senao cai no nada).
   const focoNoBotao = document.activeElement === botaoNova;
   let sorteio;
@@ -56,6 +57,7 @@ function novaPartida() {
   estado.categoria = sorteio.categoria;
   estado.certas = [];
   estado.erradas = [];
+  estado.chutadas = [];
   estado.fase = "jogando";
   estado.fimAnunciado = false;
 
@@ -91,6 +93,7 @@ function chutar(letra) {
     estado.erradas.push(letra);
     piranha.fila.push(erros() - 1); // a piranha vai comer a proxima parte
   }
+  estado.chutadas.push(letra); // guarda a ordem para a fileira de chutes
 
   atualizarTeclado();
   // Na derrota o verificarFim ja deu o aviso. Na vitoria e uma jogada comum:
@@ -175,7 +178,7 @@ function avisarMordida(numero) {
 // Chamado pelo palco.js quando a partida acabou e as animacoes pararam
 function fimDasMordidas() {
   estado.fimAnunciado = true;
-  atualizarTeclado(); // mostra o botao Nova partida
+  atualizarTeclado(); // mostra o botao Proxima partida
 
   let resultado;
   if (estado.fase === "perdeu") {
@@ -185,7 +188,7 @@ function fimDasMordidas() {
     resultado = "Voce ganhou! A palavra era " + estado.palavra + ".";
     mostrarNoPalco("Ufa! O boneco escapou!");
   }
-  avisar(resultado + " Aperte Enter ou o botao Nova partida.");
+  avisar(resultado + " Aperte Enter ou o botao Proxima partida.");
   // o botao "le" o resultado junto com o nome (aria-describedby="resultado")
   textoResultado.textContent = resultado;
 

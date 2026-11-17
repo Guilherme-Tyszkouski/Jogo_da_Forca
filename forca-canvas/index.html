@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Forca Canvas</title>
+  <title>Piranha Hangman</title>
   <link rel="stylesheet" href="./pages/index.css">
   <!-- defer: os scripts rodam na ordem, depois que a pagina foi lida -->
   <script src="./scripts/tema.js" defer></script>
@@ -16,37 +16,158 @@
   <script src="./scripts/palco.js" defer></script>
   <script src="./scripts/teclado.js" defer></script>
   <script src="./scripts/main.js" defer></script>
+  <!-- Painel (barra lateral e cards). Nao depende do jogo: funciona sozinho -->
+  <script src="./scripts/dados-exemplo.js" defer></script>
+  <script src="./scripts/painel.js" defer></script>
 </head>
 <body class="page">
-  <!-- Instrucao visivel para quem chega -->
-  <p>Digite letras no teclado (ou toque nas letras abaixo). Quando a partida acabar, aperte Enter.</p>
+  <!-- Barra lateral: marca, navegacao e perfil.
+       No celular (< 640px) vira um menu que abre por cima da tela (painel.js) -->
+  <aside id="barraLateral" class="sidebar page__sidebar" aria-label="Barra lateral">
+    <div class="sidebar__top">
+      <p class="sidebar__brand">
+        <img class="sidebar__logo" src="./images/logo.svg" alt="" width="32" height="32">
+        <span class="sidebar__label">Piranha Hangman</span>
+      </p>
+      <!-- Recolhe a barra (so os icones ficam). O painel.js troca o aria-expanded -->
+      <button id="recolherBarra" class="sidebar__collapse" type="button"
+              aria-expanded="true" aria-controls="barraLateral">
+        <span class="sidebar__collapse-icon" aria-hidden="true">&laquo;</span>
+        <span class="visually-hidden">Barra lateral</span>
+      </button>
+    </div>
 
-  <!-- A "lousa": o HTML so coloca ela aqui. Quem desenha e o palco.js -->
-  <canvas id="tela" class="stage" width="600" height="440" role="img"
-          aria-label="Jogo da forca: um boneco pendurado sobre um lago com uma piranha"></canvas>
+    <nav class="sidebar__nav" aria-label="Principal">
+      <ul class="sidebar__list">
+        <li class="sidebar__item">
+          <a class="sidebar__link" href="#">
+            <img class="sidebar__icon" src="./images/icone-home.svg" alt="" width="24" height="24">
+            <span class="sidebar__label">Home</span>
+          </a>
+        </li>
+        <li class="sidebar__item">
+          <!-- Ja estamos no jogo: #jogo leva ao <main> sem recarregar (nao zera a partida) -->
+          <a class="sidebar__link sidebar__link_state_active" href="#jogo" aria-current="page">
+            <img class="sidebar__icon" src="./images/icone-jogar.svg" alt="" width="24" height="24">
+            <span class="sidebar__label">Jogar</span>
+          </a>
+          <ul class="sidebar__submenu">
+            <li class="sidebar__subitem">
+              <a class="sidebar__sublink" href="#jogo">
+                <span class="sidebar__label">Solo e Multiplayer</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="sidebar__item">
+          <a class="sidebar__link" href="#">
+            <img class="sidebar__icon" src="./images/icone-ranking.svg" alt="" width="24" height="24">
+            <span class="sidebar__label">Ranking</span>
+          </a>
+        </li>
+        <li class="sidebar__item">
+          <a class="sidebar__link" href="#">
+            <img class="sidebar__icon" src="./images/icone-historico.svg" alt="" width="24" height="24">
+            <span class="sidebar__label">Historico</span>
+          </a>
+        </li>
+        <li class="sidebar__item">
+          <a class="sidebar__link" href="#">
+            <img class="sidebar__icon" src="./images/icone-perfil.svg" alt="" width="24" height="24">
+            <span class="sidebar__label">Perfil</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
 
-  <!-- O estado.js acrescenta aqui cada aviso, e o leitor de tela anuncia.
-       role="log": e uma lista de avisos que cresce, lida na ordem -->
-  <div id="status" class="visually-hidden" role="log" aria-live="polite"></div>
+    <!-- Perfil do jogador: o painel.js preenche com os dados de exemplo -->
+    <div class="profile sidebar__profile">
+      <img class="profile__avatar" src="./images/avatar-piranha.svg" alt=""
+           width="64" height="64">
+      <p class="profile__info">
+        <span id="perfilStatus" class="profile__status profile__status_state_online">
+          <span id="perfilStatusTexto" class="visually-hidden">Online</span>
+        </span>
+        <span id="perfilNick" class="profile__name sidebar__label">Jogador</span>
+      </p>
+      <button class="button button_style_outline profile__logout" type="button">Sair</button>
+    </div>
+  </aside>
 
-  <!-- O teclado.js cria um botao para cada letra aqui dentro -->
-  <div id="teclado" class="keyboard" role="group" aria-label="Teclado de letras"></div>
+  <!-- Cabecalho da coluna central: botao do menu (so no celular), titulo e instrucao -->
+  <header class="header page__header">
+    <button id="menuBotao" class="header__menu-button" type="button"
+            aria-expanded="false" aria-controls="barraLateral">
+      <img class="header__menu-icon" src="./images/icone-menu.svg" alt="" width="24" height="24">
+      <span class="visually-hidden">Menu</span>
+    </button>
+    <h1 class="header__title">Piranha Hangman</h1>
+    <!-- Instrucao visivel para quem chega -->
+    <p class="header__instructions">Digite letras no teclado (ou toque nas letras abaixo). Quando a partida acabar, aperte Enter.</p>
+  </header>
 
-  <!-- So aparece quando a partida acaba. O resultado (escondido da tela)
-       e lido junto com o botao, por causa do aria-describedby -->
-  <button id="novaPartida" class="button" type="button" hidden
-          aria-describedby="resultado">Nova partida</button>
-  <p id="resultado" class="visually-hidden"></p>
+  <main id="jogo" class="page__main">
+    <!-- A "lousa": o HTML so coloca ela aqui. Quem desenha e o palco.js -->
+    <canvas id="tela" class="stage" width="600" height="440" role="img"
+            aria-label="Jogo da forca: um boneco pendurado sobre um lago com uma piranha"></canvas>
 
-  <!-- Ajustes: desligar a tremida de tela (o cenario.js le e lembra a escolha) -->
-  <div class="settings">
-    <label class="settings__label">
-      <input id="tremer" class="settings__checkbox" type="checkbox" checked
-             aria-describedby="tremerMotivo">
-      Tremer a tela quando a piranha morde
-    </label>
-    <!-- So aparece com "menos movimento" no sistema (o cenario.js mostra) -->
-    <p class="settings__hint" id="tremerMotivo" hidden>Desligado: seu sistema pede menos movimento.</p>
-  </div>
+    <!-- O estado.js acrescenta aqui cada aviso, e o leitor de tela anuncia.
+         role="log": e uma lista de avisos que cresce, lida na ordem -->
+    <div id="status" class="visually-hidden" role="log" aria-live="polite"></div>
+
+    <!-- Letras ja chutadas (verde certa, vermelha errada): o jogo preenche -->
+    <div id="chutadas" class="guessed" role="group" aria-label="Letras ja chutadas"></div>
+
+    <!-- O teclado.js cria um botao para cada letra aqui dentro -->
+    <div id="teclado" class="keyboard" role="group" aria-label="Teclado de letras"></div>
+
+    <!-- So aparece quando a partida acaba. O resultado (escondido da tela)
+         e lido junto com o botao, por causa do aria-describedby -->
+    <button id="novaPartida" class="button button_style_primary" type="button" hidden
+            aria-describedby="resultado">Proxima partida</button>
+    <p id="resultado" class="visually-hidden"></p>
+
+    <!-- Ajustes: desligar a tremida de tela (o cenario.js le e lembra a escolha) -->
+    <div class="settings">
+      <label class="settings__label">
+        <input id="tremer" class="settings__checkbox" type="checkbox" checked
+               aria-describedby="tremerMotivo">
+        Tremer a tela quando a piranha morde
+      </label>
+      <!-- So aparece com "menos movimento" no sistema (o cenario.js mostra) -->
+      <p class="settings__hint" id="tremerMotivo" hidden>Desligado: seu sistema pede menos movimento.</p>
+    </div>
+  </main>
+
+  <!-- Coluna direita: cards. O painel.js preenche com os dados de exemplo -->
+  <aside class="page__aside" aria-label="Seu desempenho">
+    <section class="card card_type_history">
+      <h2 class="card__title">Historico de partidas</h2>
+      <table class="card__table">
+        <caption class="visually-hidden">Ultimas partidas (dados de exemplo)</caption>
+        <thead class="card__table-head">
+          <tr class="card__row">
+            <th class="card__cell card__cell_type_head" scope="col">Jogadores</th>
+            <th class="card__cell card__cell_type_head" scope="col">Resultado</th>
+            <th class="card__cell card__cell_type_head" scope="col">Precisao</th>
+            <th class="card__cell card__cell_type_head" scope="col">Data</th>
+          </tr>
+        </thead>
+        <tbody id="historicoCorpo" class="card__table-body"></tbody>
+      </table>
+    </section>
+
+    <section class="card card_type_league">
+      <h2 class="card__title">Liga semanal</h2>
+      <p id="ligaNome" class="card__subtitle"></p>
+      <ol id="ligaLista" class="card__ranking"></ol>
+      <p id="ligaPosicao" class="card__note"></p>
+    </section>
+
+    <section class="card card_type_themes">
+      <h2 class="card__title">Temas</h2>
+      <ul id="temasLista" class="card__themes"></ul>
+    </section>
+  </aside>
 </body>
 </html>

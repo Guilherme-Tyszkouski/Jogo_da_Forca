@@ -1,36 +1,172 @@
-/* Cores e fontes do tema. Fase 1: valores atuais, para nao mudar a aparencia.
-   Na Fase 3 entram os valores da paleta (docs/piranha-hangman-v2.md, 3.3):
-   --color-bg #161512, --color-text #EDEDED, --color-primary #81B64C,
-   --color-danger #E05252, e os novos --color-stage, --color-card,
-   --color-text-muted, --color-water, --color-piranha. */
+/* Cores e fontes do tema (paleta 3.3 do docs/piranha-hangman-v2.md).
+   As cores do canvas ficam em scripts/tema.js com os mesmos valores.
+   Contraste de texto (minimo 4.5:1) conferido sobre --color-card e --color-bg. */
 :root {
-  --color-bg: #111;
-  --color-text: #e6e6e6;
-  --color-primary: #7ee787;
-  --color-primary-bg: #1f3d27;
-  --color-danger: #ff7b72;
-  --color-danger-bg: #3d1f1f;
-  --color-stage-border: #444;
-  --color-control-bg: #2a2a3a;
-  --color-control-border: #555;
-  --color-focus: #f5c542;
-  --color-text-muted: #9a9a9a; /* paleta 3.3; 6.7:1 sobre #111 */
-  --font-text: system-ui, sans-serif;
-  --font-key: monospace;
+  /* Paleta 3.3 */
+  --color-bg: #161512;          /* fundo da pagina */
+  --color-stage: #1e1e24;       /* fundo do palco */
+  --color-card: #262421;        /* cards e barra lateral */
+  --color-primary: #81b64c;     /* botao principal, letra certa */
+  --color-danger: #e05252;      /* alerta, borda da letra errada (NAO usar em texto) */
+  --color-text: #ededed;        /* texto */
+  --color-text-muted: #9a9a9a;  /* texto secundario */
+  --color-water: #2b6cb0;       /* lago no palco */
+  --color-piranha: #8b3fd9;     /* piranha padrao */
+
+  /* Extras derivados da paleta */
+  --color-danger-text: #e36363;    /* texto vermelho: o #e05252 da 4.05:1 no card e reprova; este da 4.59:1 (= COR.erro do canvas) */
+  --color-on-primary: #161512;     /* texto escuro sobre o verde */
+  --color-primary-bg: #2b3a1f;     /* fundo da letra certa */
+  --color-primary-hover: #8fc45a;  /* botao principal com o mouse em cima */
+  --color-primary-shadow: #5b8434; /* "degrau" embaixo do botao principal */
+  --color-danger-bg: #321c1c;      /* fundo da letra errada (texto #e36363 sobre ele: 4.73:1) */
+  --color-surface: #34312d;        /* teclas, item ativo da barra, selos */
+  --color-surface-hover: #403c37;  /* tecla ou link com o mouse em cima */
+  --color-border: #3a3733;         /* bordas discretas (palco, cards, divisorias) */
+  --color-border-strong: #5a5650;  /* bordas de controles (teclas, botao contorno) */
+  --color-key-shadow: #0e0d0b;     /* "degrau" embaixo das teclas */
+  --color-gold: #e0b44c;           /* 1o lugar da liga */
+  --color-silver: #b4bcc8;         /* 2o lugar */
+  --color-bronze: #d08a57;         /* 3o lugar */
+  --color-overlay: rgba(0, 0, 0, 0.6); /* fundo escurecido do menu do celular */
+  --color-focus: #f5c542;          /* contorno de foco do teclado */
+
+  --font-text: "Inter", system-ui, sans-serif;
+
+  /* Medidas do layout */
+  --sidebar-width: 220px;
+  --sidebar-width-collapsed: 72px;
+  --column-max: 600px; /* largura maxima da coluna central (= largura do canvas) */
+  --page-gap: 24px;
 }
 
+/* Grade: barra | coluna central | cards.
+   Limites 1023px e 639px: o 639px e o mesmo do painel.js (max-width: 639px). */
 .page {
-  box-sizing: border-box; /* a borda e o padding entram na altura, sem rolagem */
+  box-sizing: border-box;
   margin: 0;
-  padding: 16px;
   min-height: 100vh;
   display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 12px;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) minmax(300px, 360px);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "sidebar header aside"
+    "sidebar main   aside";
+  column-gap: var(--page-gap);
+  padding-right: var(--page-gap);
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-text);
-  line-height: normal; /* desfaz o 1.15 do normalize, para manter a altura do texto */
-  text-align: center;
+  line-height: 1.4;
+}
+
+/* Barra recolhida (so >= 640px): a primeira coluna fica estreita */
+.page_sidebar_collapsed {
+  --sidebar-width: var(--sidebar-width-collapsed);
+}
+
+/* Elementos de layout (mix no HTML: class="sidebar page__sidebar" etc.) */
+.page__sidebar {
+  grid-area: sidebar;
+}
+
+.page__header {
+  grid-area: header;
+  justify-self: center;
+  width: 100%;
+  max-width: var(--column-max);
+}
+
+.page__main {
+  grid-area: main;
+  justify-self: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--column-max);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: var(--page-gap);
+}
+
+.page__aside {
+  grid-area: aside;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: var(--page-gap) 0;
+}
+
+/* Abaixo de 1024px: os cards descem para baixo do palco */
+@media (max-width: 1023px) {
+  .page {
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas:
+      "sidebar header"
+      "sidebar main"
+      "sidebar aside";
+  }
+
+  .page__aside {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    align-items: start;
+    padding-top: 0;
+  }
+}
+
+/* Abaixo de 640px: uma coluna; a barra vira menu por cima da tela */
+@media (max-width: 639px) {
+  .page {
+    --page-gap: 12px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "header"
+      "main"
+      "aside";
+    padding: 0 var(--page-gap);
+  }
+
+  /* A barra sai da grade (fica fixa por cima, ver sidebar.css) */
+  .page__sidebar {
+    grid-area: auto;
+  }
+
+  /* Cabecalho preso no topo ao rolar: o botao de menu fica sempre na tela.
+     Margem negativa + padding = o fundo cobre tambem as laterais (gutter).
+     z 30: acima do fundo escurecido (10); o menu (40) fica por cima dele,
+     com um recorte no canto onde o botao aparece (sidebar.css) */
+  .page__header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    justify-self: stretch;
+    width: auto;
+    margin: 0 calc(-1 * var(--page-gap));
+    padding-right: var(--page-gap);
+    padding-bottom: 8px;
+    padding-left: var(--page-gap);
+  }
+
+  .page__aside {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Menu aberto: a pagina por tras nao rola */
+  .page_menu_open {
+    overflow: hidden;
+  }
+
+  /* Fundo escurecido atras do menu (clicar nele fecha: painel.js) */
+  .page_menu_open::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    background: var(--color-overlay);
+  }
 }
