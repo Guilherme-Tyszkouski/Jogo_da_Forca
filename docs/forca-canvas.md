@@ -193,3 +193,65 @@ jogos web (ex.: Jungle Gaming) pedem.
 - Pendente: ao clicar numa letra na tela, o botao fica desabilitado e o foco
   cai no BODY (vem da Noite 2). Proxima rodada: mover o foco para a proxima
   letra livre.
+
+## Piranha Hangman v2 (plano em `docs/piranha-hangman-v2.md`)
+
+### 2026-11-16 — Preparacao (secao 1 e 2.5 do plano)
+- Feito pelo orquestrador (Claude): branch `feature/piranha-hangman-v2`
+  criada e enviada; commit `3309d68` salva as Noites 1-3; commit `6d9b9e3`
+  move `canvas-game-developer.agent.md` para `.github/agents/`, cria o agente
+  `css-architect`, acrescenta a linha dele e a secao "Padrao de codigo
+  (obrigatorio)" no `AGENTS.md`, e traz o `.editorconfig` do repositorio
+  ERP-controle-de-estoque. `.prettierignore` usa `**/vendor/normalize.css`
+  (aqui ha duas pastas `vendor/`).
+- Decisao do Guilherme: excecao ao "JS so liga classes" para valores
+  continuos (parallax): o JS escreve so variaveis CSS com
+  `style.setProperty("--parallax-x", x)`; o `transform` fica no CSS.
+  Registrada no `AGENTS.md` e na secao 9 do plano.
+
+### 2026-11-16 — Fase 1: refactor de estrutura e CSS (sem mudar comportamento)
+- `forca-canvas/`:
+  - `css-architect`: `<style>` saiu do HTML; `pages/index.css` so com
+    `@import`; blocos `page`, `stage`, `keyboard`, `button`,
+    `visually-hidden` (o antigo `.so-leitor`); `vendor/normalize.css`
+    (8.0.1), `vendor/fonts.css` e `vendor/fonts/inter.woff2` + licenca OFL.
+    Cores viraram variaveis no `:root` com os nomes da paleta 3.3, mas com os
+    valores de hoje (a paleta nova entra na Fase 3). Inter declarado, ainda
+    nao aplicado.
+  - `canvas-game-developer`: `jogo.js` dividido em `scripts/` (`tema.js`,
+    `estado.js`, `boneco.js`, `piranha.js`, `palco.js`, `teclado.js`,
+    `main.js`), carregados com `defer` no `<head>`, sem `type="module"`. Toda
+    cor do desenho foi para o objeto `COR` em `tema.js`. Os listeners agora
+    ficam em `ligarTeclado()`, chamado pelo `main.js`; nada roda antes dele.
+    JS usa `keyboard__key`, `keyboard__key_state_correct` e `_wrong`.
+- `public/`:
+  - `css-architect`: `styles.css` (854 linhas) virou 30 blocos BEM em
+    `blocks/`, 234 seletores so de classe; um `<link>` so; normalize e Inter
+    como acima. Estados por atributo viraram classes (`page_screen_solo`,
+    `segmented__option_state_checked`, `icon-button_state_pressed`).
+  - `frontend-developer`: classes novas aplicadas em `script.js` e
+    `multiplayer.js`; parallax trocado pelas variaveis `--parallax-x/y`
+    (unicos `.style` do projeto); tamanho do `dustCanvas` foi para o CSS;
+    scripts movidos para `public/scripts/` com `defer` no `<head>`.
+- Validacao (executada pelos agentes, Chrome headless):
+  - `forca-canvas/`: com a mesma palavra sorteada, 0 pixels diferentes contra
+    a referencia `6d9b9e3` (6 capturas, 1280 e 360); teste da Noite 3 igual
+    (6 erros ate o botao: 4905 ms x 4909 ms; avisos, foco, Enter,
+    reduced-motion, 360px).
+  - `public/`: 14 cenarios x 2 tamanhos (sem API e com `/api` simulado):
+    26 de 28 capturas com 0 px; as 2 da sala de espera diferem ~105 px, que e
+    o spinner (mesmo ruido entre duas capturas do baseline). Sem erros de JS.
+  - Conferido pelo orquestrador: zero `<style>`/`style=""` nos dois HTML;
+    `pages/index.css` so com `@import`; blocos so com seletores de classe;
+    `node --check` em todos os scripts; nenhum segredo nos arquivos.
+  - Nao validado: backend real (Functions), hover/foco, outros navegadores,
+    celular real, leitor de tela, abrir por dois cliques num navegador real.
+- Pendente (bugs antigos achados e confirmados, NAO corrigidos porque a Fase
+  1 nao muda comportamento — corrigir numa fase aprovada pelo Guilherme):
+  - A inclinacao do cartao solo nunca aparece: a animacao `game-arrive`
+    (`fill: both`) prende o `transform` do `.game`.
+  - Depois de um duelo, o chute no solo pinta a tecla do duelo:
+    `guess()` usa `document.querySelector('[data-letter=X]')` e o
+    `#keyboardDuelo` vem antes do `#keyboard` no DOM.
+  - `forca-canvas/`: medidas do desenho ainda estao espalhadas (so as cores
+    foram para `tema.js`); foco cai no BODY ao clicar letra (Noite 3).

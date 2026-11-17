@@ -6,294 +6,293 @@
   <meta name="theme-color" content="#302e2b">
   <meta name="description" content="Jogo da forca com duelo ao vivo: desafie alguém com a mesma palavra e descubra primeiro.">
   <title>Forca — duelo ao vivo</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="./pages/index.css">
+  <script src="./scripts/comum.js" defer></script>
+  <script src="./scripts/script.js" defer></script>
+  <script src="./scripts/multiplayer.js" defer></script>
 </head>
-<body data-tela="hub">
-  <canvas id="dustCanvas" aria-hidden="true"></canvas>
-  <div class="western-sun" aria-hidden="true"></div>
+<body class="page" data-tela="hub">
+  <canvas class="dust" id="dustCanvas" aria-hidden="true"></canvas>
+  <div class="sun" aria-hidden="true"></div>
   <div class="landscape" aria-hidden="true">
-    <div class="mesa mesa-left"></div>
-    <div class="mesa mesa-right"></div>
-    <div class="ground"></div>
+    <div class="landscape__mesa landscape__mesa_side_left"></div>
+    <div class="landscape__mesa landscape__mesa_side_right"></div>
+    <div class="landscape__ground"></div>
   </div>
 
   <div class="app">
-    <header class="app-topbar">
-      <a class="brand" href="/" id="brandLink" aria-label="Ir para o menu do jogo">
-        <span class="brand-mark" aria-hidden="true">F</span>
-        <span class="brand-name">FORCA</span>
+    <header class="header">
+      <a class="header__brand" href="/" id="brandLink" aria-label="Ir para o menu do jogo">
+        <span class="header__brand-mark" aria-hidden="true">F</span>
+        <span class="header__brand-name">FORCA</span>
       </a>
 
-      <nav class="app-nav" aria-label="Navegação principal">
-        <a class="nav-link" href="/" data-nav="hub">Jogar</a>
+      <nav class="header__nav" aria-label="Navegação principal">
+        <a class="header__nav-link" href="/" data-nav="hub">Jogar</a>
       </nav>
 
-      <div class="topbar-user" id="areaUsuario">
-        <a class="btn btn-primary btn-sm" href="/api/auth/login">Entrar com Google</a>
+      <div class="header__user" id="areaUsuario">
+        <a class="button button_style_primary button_size_sm" href="/api/auth/login">Entrar com Google</a>
       </div>
     </header>
 
     <!-- ============================================================ HUB -->
     <main class="view" id="view-hub">
-      <section class="hero-card">
-        <div class="hero-copy">
-          <span class="pill"><span class="pulse-dot" aria-hidden="true"></span> Ao vivo · 1 vs 1</span>
-          <h1>Desafie alguém<br>na forca</h1>
-          <p>Mesma palavra para os dois, ao mesmo tempo. Quem descobrir primeiro vence.
+      <section class="hero">
+        <div class="hero__copy">
+          <span class="pill"><span class="pill__dot" aria-hidden="true"></span> Ao vivo · 1 vs 1</span>
+          <h1 class="hero__title">Desafie alguém<br>na forca</h1>
+          <p class="hero__text">Mesma palavra para os dois, ao mesmo tempo. Quem descobrir primeiro vence.
              Crie uma sala, mande o link e acompanhe o erro de cada letra do rival.</p>
-          <div class="hero-actions">
-            <button class="btn btn-primary btn-lg" id="criarSalaRapida" type="button">Criar sala</button>
-            <button class="btn btn-ghost btn-lg" id="jogarSolo" type="button">Jogar sozinho</button>
+          <div class="hero__actions">
+            <button class="button button_style_primary button_size_lg" id="criarSalaRapida" type="button">Criar sala</button>
+            <button class="button button_style_ghost button_size_lg" id="jogarSolo" type="button">Jogar sozinho</button>
           </div>
         </div>
 
-        <div class="hero-board" aria-hidden="true">
-          <svg viewBox="0 0 240 220" class="hero-svg">
-            <path class="hero-gallows" d="M22 198h196M52 198V26h124v26" />
-            <circle class="hero-part" cx="176" cy="72" r="26" />
-            <path class="hero-part" d="M176 98v62M176 116l-38 26M176 116l38 26M176 160l-32 38M176 160l32 38" />
+        <div class="hero__board" aria-hidden="true">
+          <svg viewBox="0 0 240 220" class="hero__svg">
+            <path class="hero__gallows" d="M22 198h196M52 198V26h124v26" />
+            <circle class="hero__part" cx="176" cy="72" r="26" />
+            <path class="hero__part" d="M176 98v62M176 116l-38 26M176 116l38 26M176 160l-32 38M176 160l32 38" />
           </svg>
-          <div class="hero-chip hero-chip-a"><span class="hero-avatar">EU</span><span>Você · 2 erros</span></div>
-          <div class="hero-chip hero-chip-b"><span class="hero-avatar rival">R</span><span>Rival · 4 erros</span></div>
+          <div class="hero__chip hero__chip_position_top"><span class="hero__avatar">EU</span><span>Você · 2 erros</span></div>
+          <div class="hero__chip hero__chip_position_bottom"><span class="hero__avatar hero__avatar_type_rival">R</span><span>Rival · 4 erros</span></div>
         </div>
       </section>
 
-      <div class="hub-grid">
+      <div class="hub">
         <section class="panel" aria-labelledby="tituloCriar">
-          <h2 id="tituloCriar">Criar sala</h2>
-          <p class="panel-desc">Escolha o tamanho da palavra e receba um código para convidar.</p>
+          <h2 class="panel__title" id="tituloCriar">Criar sala</h2>
+          <p class="panel__desc">Escolha o tamanho da palavra e receba um código para convidar.</p>
 
           <div class="segmented" role="radiogroup" aria-label="Tamanho da palavra">
-            <button type="button" role="radio" aria-checked="true" data-tamanho="curta">Curta<small>4–6 letras</small></button>
-            <button type="button" role="radio" aria-checked="false" data-tamanho="media">Média<small>7–9 letras</small></button>
-            <button type="button" role="radio" aria-checked="false" data-tamanho="longa">Longa<small>10+ letras</small></button>
+            <button class="segmented__option segmented__option_state_checked" type="button" role="radio" aria-checked="true" data-tamanho="curta">Curta<small class="segmented__hint">4–6 letras</small></button>
+            <button class="segmented__option" type="button" role="radio" aria-checked="false" data-tamanho="media">Média<small class="segmented__hint">7–9 letras</small></button>
+            <button class="segmented__option" type="button" role="radio" aria-checked="false" data-tamanho="longa">Longa<small class="segmented__hint">10+ letras</small></button>
           </div>
 
-          <button class="btn btn-primary btn-block" id="criarSalaConfirmar" type="button">Criar e convidar</button>
-          <p class="panel-msg" id="criarMsg" role="status"></p>
+          <button class="button button_style_primary button_width_full" id="criarSalaConfirmar" type="button">Criar e convidar</button>
+          <p class="notice" id="criarMsg" role="status"></p>
         </section>
 
         <section class="panel" aria-labelledby="tituloEntrar">
-          <h2 id="tituloEntrar">Entrar com código</h2>
-          <p class="panel-desc">Recebeu um código de 6 caracteres? Cole aqui.</p>
+          <h2 class="panel__title" id="tituloEntrar">Entrar com código</h2>
+          <p class="panel__desc">Recebeu um código de 6 caracteres? Cole aqui.</p>
 
           <form id="formEntrar" novalidate>
-            <label class="sr-only" for="codigoInput">Código da sala</label>
-            <input class="codigo-input" id="codigoInput" name="codigo" maxlength="8" inputmode="latin"
+            <label class="visually-hidden" for="codigoInput">Código da sala</label>
+            <input class="code-input" id="codigoInput" name="codigo" maxlength="8" inputmode="latin"
                    autocomplete="off" spellcheck="false" placeholder="ABC123">
-            <button class="btn btn-secondary btn-block" type="submit">Entrar na sala</button>
+            <button class="button button_style_secondary button_width_full" type="submit">Entrar na sala</button>
           </form>
-          <p class="panel-msg" id="entrarMsg" role="status"></p>
+          <p class="notice" id="entrarMsg" role="status"></p>
         </section>
 
-        <section class="panel panel-wide" aria-labelledby="tituloSalas">
-          <div class="panel-head">
-            <h2 id="tituloSalas">Salas abertas</h2>
-            <button class="btn btn-ghost btn-sm" id="atualizarSalas" type="button">Atualizar</button>
+        <section class="panel panel_size_wide" aria-labelledby="tituloSalas">
+          <div class="panel__head">
+            <h2 class="panel__title" id="tituloSalas">Salas abertas</h2>
+            <button class="button button_style_ghost button_size_sm" id="atualizarSalas" type="button">Atualizar</button>
           </div>
-          <p class="panel-desc">Entre na sala de alguém que já está esperando.</p>
-          <ul class="sala-list" id="listaSalas" aria-live="polite">
-            <li class="sala-empty">Carregando salas…</li>
+          <p class="panel__desc">Entre na sala de alguém que já está esperando.</p>
+          <ul class="room-list" id="listaSalas" aria-live="polite">
+            <li class="room-list__empty">Carregando salas…</li>
           </ul>
         </section>
       </div>
 
-      <section class="como-funciona" aria-label="Como funciona">
-        <div><span>1</span><p>Crie a sala e mande o link no WhatsApp.</p></div>
-        <div><span>2</span><p>Os dois recebem a mesma palavra secreta.</p></div>
-        <div><span>3</span><p>Quem descobrir primeiro, ou errar menos, vence.</p></div>
+      <section class="steps" aria-label="Como funciona">
+        <div class="steps__item"><span class="steps__number">1</span><p class="steps__text">Crie a sala e mande o link no WhatsApp.</p></div>
+        <div class="steps__item"><span class="steps__number">2</span><p class="steps__text">Os dois recebem a mesma palavra secreta.</p></div>
+        <div class="steps__item"><span class="steps__number">3</span><p class="steps__text">Quem descobrir primeiro, ou errar menos, vence.</p></div>
       </section>
     </main>
 
     <!-- ==================================================== SALA DE ESPERA -->
     <main class="view" id="view-sala" hidden>
-      <section class="sala-card">
+      <section class="room">
         <span class="pill">Sala de espera</span>
-        <h1>Convide seu adversário</h1>
-        <p class="sala-sub">A partida começa sozinha assim que alguém entrar. A palavra já está sorteada e guardada no servidor.</p>
+        <h1 class="room__title">Convide seu adversário</h1>
+        <p class="room__sub">A partida começa sozinha assim que alguém entrar. A palavra já está sorteada e guardada no servidor.</p>
 
-        <div class="codigo-box">
-          <span class="codigo-label">Código da sala</span>
-          <strong id="salaCodigo" class="codigo-valor">------</strong>
-          <button class="btn btn-ghost btn-sm" id="copiarCodigo" type="button">Copiar código</button>
+        <div class="room__code-box">
+          <span class="room__code-label">Código da sala</span>
+          <strong id="salaCodigo" class="room__code-value">------</strong>
+          <button class="button button_style_ghost button_size_sm" id="copiarCodigo" type="button">Copiar código</button>
         </div>
 
-        <div class="share-row">
-          <label class="sr-only" for="linkConvite">Link de convite</label>
-          <input id="linkConvite" class="share-input" readonly>
-          <button class="btn btn-secondary btn-sm" id="copiarLink" type="button">Copiar link</button>
-          <a class="btn btn-whatsapp btn-sm" id="whatsappLink" href="#" target="_blank" rel="noopener">WhatsApp</a>
+        <div class="room__share">
+          <label class="visually-hidden" for="linkConvite">Link de convite</label>
+          <input id="linkConvite" class="room__share-input" readonly>
+          <button class="button button_style_secondary button_size_sm" id="copiarLink" type="button">Copiar link</button>
+          <a class="button button_style_whatsapp button_size_sm" id="whatsappLink" href="#" target="_blank" rel="noopener">WhatsApp</a>
         </div>
 
-        <div class="jogadores-slots">
-          <article class="jogador-slot" id="slotEu">
-            <span class="avatar avatar-lg" id="slotEuAvatar">?</span>
+        <div class="room__slots">
+          <article class="room__slot" id="slotEu">
+            <span class="avatar avatar_size_lg" id="slotEuAvatar">?</span>
             <strong id="slotEuNome">Você</strong>
-            <span class="slot-status" id="slotEuStatus">Pronto</span>
+            <span class="room__slot-status" id="slotEuStatus">Pronto</span>
           </article>
 
-          <div class="vs-badge" aria-hidden="true">VS</div>
+          <div class="room__vs" aria-hidden="true">VS</div>
 
-          <article class="jogador-slot vazio" id="slotRival">
-            <span class="avatar avatar-lg vazio"><span class="spinner" aria-hidden="true"></span></span>
+          <article class="room__slot room__slot_state_empty" id="slotRival">
+            <span class="avatar avatar_size_lg avatar_state_empty"><span class="spinner" aria-hidden="true"></span></span>
             <strong>Aguardando…</strong>
-            <span class="slot-status">Compartilhe o link</span>
+            <span class="room__slot-status">Compartilhe o link</span>
           </article>
         </div>
 
-        <div class="sala-actions">
-          <button class="btn btn-danger-ghost" id="cancelarSala" type="button">Cancelar sala</button>
+        <div class="room__actions">
+          <button class="button button_style_danger-ghost" id="cancelarSala" type="button">Cancelar sala</button>
         </div>
-        <p class="panel-msg" id="salaMsg" role="status"></p>
+        <p class="notice" id="salaMsg" role="status"></p>
       </section>
     </main>
 
     <!-- ============================================================ DUELO -->
-    <main class="view" id="view-duelo" hidden>
-      <header class="duelo-topo">
-        <article class="duelo-jogador" id="dueloEu">
+    <main class="view duel" id="view-duelo" hidden>
+      <header class="duel__top">
+        <article class="duel__player" id="dueloEu">
           <span class="avatar" id="dueloEuAvatar">?</span>
-          <div class="duelo-jogador-info">
-            <strong id="dueloEuNome">Você</strong>
-            <div class="erros-pips" id="dueloEuPips" aria-label="Seus erros"></div>
+          <div class="duel__player-info">
+            <strong class="duel__player-name" id="dueloEuNome">Você</strong>
+            <div class="duel__pips" id="dueloEuPips" aria-label="Seus erros"></div>
           </div>
-          <span class="duelo-acertos" id="dueloEuAcertos">0 letras</span>
+          <span class="duel__hits" id="dueloEuAcertos">0 letras</span>
         </article>
 
-        <div class="duelo-centro">
-          <span class="duelo-status" id="dueloStatus" aria-live="polite">Preparando…</span>
-          <span class="duelo-codigo" id="dueloCodigo"></span>
+        <div class="duel__center">
+          <span class="duel__status" id="dueloStatus" aria-live="polite">Preparando…</span>
+          <span class="duel__code" id="dueloCodigo"></span>
         </div>
 
-        <article class="duelo-jogador rival" id="dueloRival">
+        <article class="duel__player" id="dueloRival">
           <span class="avatar" id="dueloRivalAvatar">?</span>
-          <div class="duelo-jogador-info">
-            <strong id="dueloRivalNome">Rival</strong>
-            <div class="erros-pips" id="dueloRivalPips" aria-label="Erros do rival"></div>
+          <div class="duel__player-info">
+            <strong class="duel__player-name" id="dueloRivalNome">Rival</strong>
+            <div class="duel__pips" id="dueloRivalPips" aria-label="Erros do rival"></div>
           </div>
-          <span class="duelo-acertos" id="dueloRivalAcertos">0 letras</span>
+          <span class="duel__hits" id="dueloRivalAcertos">0 letras</span>
         </article>
       </header>
 
-      <div class="duelo-grid">
-        <section class="duelo-board" aria-label="Seu tabuleiro">
-          <div class="duelo-play">
-            <div class="hangman-wrap">
-              <svg class="hangman duel-hangman" viewBox="0 0 330 310" aria-hidden="true">
-                <path class="gallows" d="M36 284H292M74 284V26H228V54" />
-                <circle class="duel-part" data-parte="0" cx="228" cy="88" r="34" />
-                <path class="duel-part" data-parte="1" d="M228 122V205" />
-                <path class="duel-part" data-parte="2" d="M228 145L176 178" />
-                <path class="duel-part" data-parte="3" d="M228 145L280 178" />
-                <path class="duel-part" data-parte="4" d="M228 205L184 256" />
-                <path class="duel-part" data-parte="5" d="M228 205L272 256" />
+      <div class="duel__grid">
+        <section class="duel__board" aria-label="Seu tabuleiro">
+          <div class="duel__play">
+            <div class="hangman hangman_theme_dark">
+              <svg class="hangman__svg" viewBox="0 0 330 310" aria-hidden="true">
+                <path class="hangman__gallows" d="M36 284H292M74 284V26H228V54" />
+                <circle class="hangman__duel-part" data-parte="0" cx="228" cy="88" r="34" />
+                <path class="hangman__duel-part" data-parte="1" d="M228 122V205" />
+                <path class="hangman__duel-part" data-parte="2" d="M228 145L176 178" />
+                <path class="hangman__duel-part" data-parte="3" d="M228 145L280 178" />
+                <path class="hangman__duel-part" data-parte="4" d="M228 205L184 256" />
+                <path class="hangman__duel-part" data-parte="5" d="M228 205L272 256" />
               </svg>
             </div>
 
-            <div class="word-panel">
-              <p class="category" id="dueloCategoria">PALAVRA MISTERIOSA</p>
-              <div class="word" id="wordDuelo" aria-label="Palavra secreta"></div>
-              <p class="hint" id="dueloDica" role="status"></p>
+            <div class="word word_theme_dark">
+              <p class="word__category" id="dueloCategoria">PALAVRA MISTERIOSA</p>
+              <div class="word__letters" id="wordDuelo" aria-label="Palavra secreta"></div>
+              <p class="word__hint" id="dueloDica" role="status"></p>
             </div>
           </div>
 
-          <div class="mistakes-row">
-            <span id="mistakesDuelo" class="mistakes">0 / 6 erros</span>
-            <span class="dica-inline" id="dueloTempo"></span>
+          <div class="duel__mistakes-row">
+            <span id="mistakesDuelo" class="duel__mistakes">0 / 6 erros</span>
+            <span id="dueloTempo"></span>
           </div>
 
-          <div class="keyboard" id="keyboardDuelo" aria-label="Teclado do duelo"></div>
+          <div class="keyboard keyboard_theme_dark" id="keyboardDuelo" aria-label="Teclado do duelo"></div>
         </section>
 
-        <aside class="duelo-side" aria-label="Painel do duelo">
-          <h2>Reações</h2>
-          <div class="emotes" id="emotes">
-            <button type="button" data-emoji="👍" aria-label="Joinha">👍</button>
-            <button type="button" data-emoji="😂" aria-label="Rindo">😂</button>
-            <button type="button" data-emoji="😱" aria-label="Chocado">😱</button>
-            <button type="button" data-emoji="🔥" aria-label="Fogo">🔥</button>
-            <button type="button" data-emoji="😭" aria-label="Chorando">😭</button>
-            <button type="button" data-emoji="🤝" aria-label="Aperto de mão">🤝</button>
+        <aside class="duel__side" aria-label="Painel do duelo">
+          <h2 class="duel__side-title">Reações</h2>
+          <div class="duel__emotes" id="emotes">
+            <button class="duel__emote" type="button" data-emoji="👍" aria-label="Joinha">👍</button>
+            <button class="duel__emote" type="button" data-emoji="😂" aria-label="Rindo">😂</button>
+            <button class="duel__emote" type="button" data-emoji="😱" aria-label="Chocado">😱</button>
+            <button class="duel__emote" type="button" data-emoji="🔥" aria-label="Fogo">🔥</button>
+            <button class="duel__emote" type="button" data-emoji="😭" aria-label="Chorando">😭</button>
+            <button class="duel__emote" type="button" data-emoji="🤝" aria-label="Aperto de mão">🤝</button>
           </div>
-          <div class="eventos" id="eventos" aria-live="polite"></div>
+          <div class="duel__events" id="eventos" aria-live="polite"></div>
 
-          <h2>Dica</h2>
-          <button class="btn btn-ghost btn-block btn-sm" id="dicaDuelo" type="button">Mostrar dica</button>
+          <h2 class="duel__side-title">Dica</h2>
+          <button class="button button_style_ghost button_width_full button_size_sm" id="dicaDuelo" type="button">Mostrar dica</button>
 
-          <div class="side-rodape">
-            <button class="btn btn-danger-ghost btn-sm btn-block" id="desistirDuelo" type="button">Desistir</button>
+          <div class="duel__side-footer">
+            <button class="button button_style_danger-ghost button_size_sm button_width_full" id="desistirDuelo" type="button">Desistir</button>
           </div>
         </aside>
       </div>
     </main>
 
     <!-- ============================================================= SOLO -->
-    <main class="view" id="view-solo" hidden>
+    <main class="view view_type_solo" id="view-solo" hidden>
       <div class="solo-header">
-        <button class="btn btn-ghost btn-sm" id="voltarDoSolo" type="button">← Voltar ao menu</button>
+        <button class="button button_style_ghost button_size_sm" id="voltarDoSolo" type="button">← Voltar ao menu</button>
         <button class="icon-button" id="soundButton" type="button" aria-label="Ativar som" aria-pressed="false">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Zm5.5 3a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14"/></svg>
+          <svg class="icon-button__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Zm5.5 3a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14"/></svg>
         </button>
       </div>
 
-      <section class="game-card" aria-label="Jogo da forca solo">
-        <div class="status-row">
-          <span class="eyebrow">PALAVRA MISTERIOSA</span>
-          <span class="mistakes" id="mistakes" aria-live="polite">0 / 6 erros</span>
+      <section class="game" aria-label="Jogo da forca solo">
+        <div class="game__status">
+          <span class="game__eyebrow">PALAVRA MISTERIOSA</span>
+          <span class="game__mistakes" id="mistakes" aria-live="polite">0 / 6 erros</span>
         </div>
 
-        <div class="play-area">
-          <div class="hangman-wrap" aria-hidden="true">
-            <svg class="hangman" viewBox="0 0 330 310">
-              <path class="gallows" d="M36 284H292M74 284V26H228V54"/>
-              <circle class="figure-part" data-part="0" cx="228" cy="88" r="34"/>
-              <path class="figure-part" data-part="1" d="M228 122V205"/>
-              <path class="figure-part" data-part="2" d="M228 145L176 178"/>
-              <path class="figure-part" data-part="3" d="M228 145L280 178"/>
-              <path class="figure-part" data-part="4" d="M228 205L184 256"/>
-              <path class="figure-part" data-part="5" d="M228 205L272 256"/>
-              <path class="face" d="M214 84l8 8m20-8-8 8"/>
+        <div class="game__play">
+          <div class="hangman hangman_mode_parallax" aria-hidden="true">
+            <svg class="hangman__svg" viewBox="0 0 330 310">
+              <path class="hangman__gallows" d="M36 284H292M74 284V26H228V54"/>
+              <circle class="hangman__part" data-part="0" cx="228" cy="88" r="34"/>
+              <path class="hangman__part" data-part="1" d="M228 122V205"/>
+              <path class="hangman__part" data-part="2" d="M228 145L176 178"/>
+              <path class="hangman__part" data-part="3" d="M228 145L280 178"/>
+              <path class="hangman__part" data-part="4" d="M228 205L184 256"/>
+              <path class="hangman__part" data-part="5" d="M228 205L272 256"/>
+              <path class="hangman__face" d="M214 84l8 8m20-8-8 8"/>
             </svg>
           </div>
 
-          <div class="word-panel">
-            <p class="category" id="category">CATEGORIA</p>
-            <div class="word" id="word" aria-label="Palavra secreta"></div>
-            <p class="hint" id="hint"></p>
+          <div class="word">
+            <p class="word__category" id="category">CATEGORIA</p>
+            <div class="word__letters" id="word" aria-label="Palavra secreta"></div>
+            <p class="word__hint" id="hint"></p>
           </div>
         </div>
 
         <div class="keyboard" id="keyboard" aria-label="Teclado do jogo"></div>
 
-        <div class="actions">
-          <button class="hint-button" id="hintButton" type="button">Dica</button>
-          <button class="new-button" id="newButton" type="button">Nova palavra</button>
+        <div class="game__actions">
+          <button class="game__button game__button_style_hint" id="hintButton" type="button">Dica</button>
+          <button class="game__button game__button_style_new" id="newButton" type="button">Nova palavra</button>
         </div>
       </section>
     </main>
   </div>
 
-  <dialog id="resultDialog">
-    <div class="dialog-icon" id="dialogIcon" aria-hidden="true">✓</div>
-    <h2 id="dialogTitle">Você venceu!</h2>
-    <p id="dialogMessage"></p>
-    <button id="dialogButton" type="button">Jogar novamente</button>
+  <dialog class="dialog" id="resultDialog">
+    <div class="dialog__icon" id="dialogIcon" aria-hidden="true">✓</div>
+    <h2 class="dialog__title" id="dialogTitle">Você venceu!</h2>
+    <p class="dialog__message" id="dialogMessage"></p>
+    <button class="dialog__button" id="dialogButton" type="button">Jogar novamente</button>
   </dialog>
 
-  <dialog id="dueloDialogo" class="duelo-dialogo">
-    <div class="dialog-icon" id="dueloIcone" aria-hidden="true">🏆</div>
-    <h2 id="dueloTitulo">Você venceu!</h2>
-    <p id="dueloMensagem"></p>
-    <div class="dialog-acoes">
-      <button id="dueloNovaSala" class="btn btn-primary" type="button">Nova sala</button>
-      <button id="dueloVoltar" class="btn btn-ghost" type="button">Voltar ao menu</button>
+  <dialog class="dialog dialog_theme_dark" id="dueloDialogo">
+    <div class="dialog__icon" id="dueloIcone" aria-hidden="true">🏆</div>
+    <h2 class="dialog__title" id="dueloTitulo">Você venceu!</h2>
+    <p class="dialog__message" id="dueloMensagem"></p>
+    <div class="dialog__actions">
+      <button id="dueloNovaSala" class="button button_style_primary dialog__action" type="button">Nova sala</button>
+      <button id="dueloVoltar" class="button button_style_ghost dialog__action" type="button">Voltar ao menu</button>
     </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-
-  <script src="comum.js"></script>
-  <script src="script.js"></script>
-  <script src="multiplayer.js"></script>
 </body>
 </html>

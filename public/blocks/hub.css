@@ -1,0 +1,13 @@
+/* Grade dos paineis do hub (criar sala, entrar com codigo, salas abertas). */
+.hub {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+@media (max-width: 900px) {
+  .hub {
+    grid-template-columns: 1fr;
+  }
+}

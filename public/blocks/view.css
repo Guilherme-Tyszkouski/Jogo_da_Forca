@@ -1,0 +1,8 @@
+/* Cada tela (<main>) e um .view; o JS mostra/esconde com o atributo hidden. */
+.view {
+  box-sizing: border-box;
+}
+
+.view_type_solo {
+  padding-top: 14px;
+}

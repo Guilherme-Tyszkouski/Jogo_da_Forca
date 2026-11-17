@@ -1,0 +1,7 @@
+/* Barra acima do cartao solo: "Voltar ao menu" e botao de som. */
+.solo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}

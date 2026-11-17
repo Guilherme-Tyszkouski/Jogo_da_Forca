@@ -1,0 +1,30 @@
+.panel {
+  box-sizing: border-box;
+  padding: 22px;
+  border: 1px solid var(--app-line);
+  border-radius: 12px;
+  background: var(--app-panel);
+}
+
+.panel_size_wide {
+  grid-column: 1 / -1;
+}
+
+.panel__title {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.panel__desc {
+  margin: 0 0 16px;
+  color: var(--app-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.panel__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}

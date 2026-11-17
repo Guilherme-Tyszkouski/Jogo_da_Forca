@@ -1,0 +1,40 @@
+/* Seletor de tamanho da palavra (role="radiogroup"). O JS liga
+   segmented__option_state_checked junto com aria-checked="true". */
+.segmented {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 5px;
+  border-radius: 9px;
+  background: var(--app-input);
+}
+
+.segmented__option {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--app-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.segmented__option_state_checked {
+  background: var(--app-elev);
+  color: var(--white);
+  box-shadow: inset 0 0 0 1px var(--app-ring);
+}
+
+.segmented__hint {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: .8;
+}

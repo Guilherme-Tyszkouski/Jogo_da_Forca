@@ -1,0 +1,24 @@
+.avatar {
+  box-sizing: border-box;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--app-avatar);
+  color: var(--white);
+  font-weight: 800;
+  font-size: 13px;
+  flex: 0 0 auto;
+}
+
+.avatar_size_lg {
+  width: 56px;
+  height: 56px;
+  font-size: 18px;
+}
+
+.avatar_state_empty {
+  background: transparent;
+  border: 1px dashed var(--app-line);
+}

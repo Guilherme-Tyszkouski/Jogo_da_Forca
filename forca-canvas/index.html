@@ -4,59 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Forca Canvas</title>
-  <style>
-    * { box-sizing: border-box; } /* a borda entra na largura, nao soma */
-    body {
-      margin: 0; padding: 16px; min-height: 100vh;
-      display: grid; place-content: center; justify-items: center; gap: 12px;
-      background: #111; color: #e6e6e6;
-      font-family: system-ui, sans-serif; text-align: center;
-    }
-    /* O canvas encolhe em tela pequena (32px = 16px de cada lado) */
-    canvas {
-      border: 2px solid #444; border-radius: 8px;
-      width: min(600px, calc(100vw - 32px)); height: auto;
-    }
-    /* Teclado na tela: os botoes quebram linha sozinhos */
-    #teclado {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
-      max-width: 600px;
-    }
-    #teclado button, #novaPartida {
-      min-width: 40px; min-height: 44px; font: bold 18px monospace;
-      border: 2px solid #555; border-radius: 6px;
-      background: #2a2a3a; color: #e6e6e6; cursor: pointer;
-    }
-    #teclado button:disabled { cursor: default; opacity: 0.8; }
-    /* opacity: 1 = sem transparencia, para a cor da letra usada ter bom contraste */
-    #teclado button.certa { background: #1f3d27; border-color: #7ee787; color: #7ee787; opacity: 1; }
-    #teclado button.errada { background: #3d1f1f; border-color: #ff7b72; color: #ff7b72; text-decoration: line-through; opacity: 1; }
-    #novaPartida { padding: 0 16px; font-family: system-ui, sans-serif; }
-    button:focus-visible { outline: 3px solid #f5c542; outline-offset: 2px; }
-    /* Esconde da tela, mas o leitor de tela ainda le */
-    .so-leitor {
-      position: absolute; width: 1px; height: 1px;
-      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
-    }
-  </style>
+  <link rel="stylesheet" href="./pages/index.css">
+  <!-- defer: os scripts rodam na ordem, depois que a pagina foi lida -->
+  <script src="./scripts/tema.js" defer></script>
+  <script src="./scripts/estado.js" defer></script>
+  <script src="./scripts/boneco.js" defer></script>
+  <script src="./scripts/piranha.js" defer></script>
+  <script src="./scripts/palco.js" defer></script>
+  <script src="./scripts/teclado.js" defer></script>
+  <script src="./scripts/main.js" defer></script>
 </head>
-<body>
+<body class="page">
   <!-- Instrucao visivel para quem chega -->
   <p>Digite letras no teclado (ou toque nas letras abaixo). Quando a partida acabar, aperte Enter.</p>
 
-  <!-- A "lousa": o HTML so coloca ela aqui. Quem desenha e o jogo.js -->
-  <canvas id="tela" width="600" height="400" role="img"
+  <!-- A "lousa": o HTML so coloca ela aqui. Quem desenha e o palco.js -->
+  <canvas id="tela" class="stage" width="600" height="400" role="img"
           aria-label="Jogo da forca" aria-describedby="status"></canvas>
 
-  <!-- O jogo.js escreve aqui o status, e o leitor de tela anuncia -->
-  <p id="status" class="so-leitor" aria-live="polite"></p>
+  <!-- O estado.js escreve aqui o status, e o leitor de tela anuncia -->
+  <p id="status" class="visually-hidden" aria-live="polite"></p>
 
-  <!-- O jogo.js cria um botao para cada letra aqui dentro -->
-  <div id="teclado" role="group" aria-label="Teclado de letras"></div>
+  <!-- O teclado.js cria um botao para cada letra aqui dentro -->
+  <div id="teclado" class="keyboard" role="group" aria-label="Teclado de letras"></div>
 
   <!-- So aparece quando a partida acaba -->
-  <button id="novaPartida" type="button" hidden>Nova partida</button>
-
-  <script src="jogo.js"></script>
+  <button id="novaPartida" class="button" type="button" hidden>Nova partida</button>
 </body>
 </html>

@@ -64,6 +64,12 @@ Detalhes e modelo de pastas em `docs/piranha-hangman-v2.md`, secao 2.
   Seletores so de classe: nada de `#id` nem de tag dentro dos blocos.
 - Proibido: `<style>` no HTML, atributo `style=""` e CSS montado no
   JavaScript. O JS so liga e desliga classes.
+  - Unica excecao (aprovada pelo Guilherme em 2026-11-16): para valores
+    continuos que mudam a cada quadro (ex.: parallax seguindo o mouse), o JS
+    pode escrever SO variaveis CSS com
+    `elemento.style.setProperty("--tilt-x", valor)`. A propriedade que usa a
+    variavel (`transform: rotateY(calc(var(--tilt-x) * 1deg))`) fica no bloco
+    CSS. Escrever `elemento.style.transform`, `width` etc. continua proibido.
 - Cores do tema: variaveis CSS no `:root` de `blocks/page.css`. As cores do
   canvas ficam num unico objeto em `scripts/tema.js`, com os mesmos valores.
   Nada de cor solta no codigo de desenho.

@@ -387,6 +387,11 @@ Cofre: `C:\Users\Guilherme Tyszkouski\OneDrive\Documents\SEGUNDO CEREBRO`
   (`feature/piranha-hangman-v2`), com merge só depois da aprovação do Guilherme.
 - 2026-11-16: o backend continua no **Cloudflare** (Pages + Functions + D1),
   e não em Firebase/Supabase.
+- 2026-11-16: **exceção ao "JS só liga classes"**: para valores contínuos
+  (parallax e inclinação que seguem o mouse em `public/script.js`), o JS pode
+  escrever só variáveis CSS (`style.setProperty("--tilt-x", x)`); o
+  `transform` fica no bloco CSS. Escolhido pelo Guilherme em vez de remover o
+  efeito ou trocar por estados fixos. Registrado no `AGENTS.md`.
 
 ---
 

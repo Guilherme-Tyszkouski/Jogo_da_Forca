@@ -1,0 +1,16 @@
+/* Aviso flutuante. O JS mostra/esconde com o atributo hidden. */
+.toast {
+  box-sizing: border-box;
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 60;
+  transform: translateX(-50%);
+  padding: 12px 18px;
+  border: 1px solid var(--app-line);
+  border-radius: 9px;
+  background: var(--app-input);
+  color: var(--white);
+  font-size: 13px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .45);
+}

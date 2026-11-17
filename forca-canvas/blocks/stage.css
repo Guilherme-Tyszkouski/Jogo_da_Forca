@@ -1,0 +1,8 @@
+/* O palco (canvas). Encolhe em tela pequena (32px = 16px de cada lado) */
+.stage {
+  box-sizing: border-box;
+  border: 2px solid var(--color-stage-border);
+  border-radius: 8px;
+  width: min(600px, calc(100vw - 32px));
+  height: auto;
+}

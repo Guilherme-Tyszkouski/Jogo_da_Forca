@@ -1,0 +1,7 @@
+@import url(../vendor/normalize.css);
+@import url(../vendor/fonts.css);
+@import url(../blocks/page.css);
+@import url(../blocks/stage.css);
+@import url(../blocks/keyboard.css);
+@import url(../blocks/button.css);
+@import url(../blocks/visually-hidden.css);

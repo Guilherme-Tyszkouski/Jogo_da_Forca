@@ -44,6 +44,7 @@
       elemento.hidden = chave !== nome;
     });
     document.body.dataset.tela = nome;
+    document.body.classList.toggle('page_screen_solo', nome === 'solo');
     estado.tela = nome;
     window.scrollTo(0, 0);
   }
@@ -89,7 +90,7 @@
     const usuario = estado.usuario;
     if (!usuario) {
       const entrar = document.createElement('a');
-      entrar.className = 'btn btn-primary btn-sm';
+      entrar.className = 'button button_style_primary button_size_sm';
       entrar.href = '/api/auth/login';
       entrar.textContent = 'Entrar com Google';
       area.append(entrar);
@@ -101,11 +102,11 @@
     avatar.textContent = comum.iniciais(usuario);
 
     const nome = document.createElement('span');
-    nome.className = 'user-name';
+    nome.className = 'header__user-name';
     nome.textContent = comum.primeiroNome(usuario);
 
     const sair = document.createElement('a');
-    sair.className = 'btn btn-ghost btn-sm';
+    sair.className = 'button button_style_ghost button_size_sm';
     sair.href = '/api/auth/sair';
     sair.textContent = 'Sair';
 
@@ -140,22 +141,23 @@
 
     lista.replaceChildren(...dados.salas.map(sala => {
       const item = document.createElement('li');
-      item.className = 'sala-item';
+      item.className = 'room-list__item';
 
       const info = document.createElement('div');
-      info.className = 'sala-info';
+      info.className = 'room-list__info';
 
       const criador = document.createElement('strong');
       criador.textContent = sala.criador;
 
       const detalhe = document.createElement('span');
+      detalhe.className = 'room-list__detail';
       detalhe.textContent = `${sala.tamanho} letras · esperando adversário`;
 
       info.append(criador, detalhe);
 
       const entrar = document.createElement('button');
       entrar.type = 'button';
-      entrar.className = 'btn btn-secondary btn-sm';
+      entrar.className = 'button button_style_secondary button_size_sm';
       entrar.textContent = 'Entrar';
       entrar.addEventListener('click', () => entrarPorCodigo(sala.codigo));
 
@@ -166,7 +168,7 @@
 
   function avisoLista(texto) {
     const item = document.createElement('li');
-    item.className = 'sala-empty';
+    item.className = 'room-list__empty';
     item.textContent = texto;
     return item;
   }
@@ -254,23 +256,23 @@
     const rival = dados?.rival;
     const slotRival = $('slotRival');
     if (rival) {
-      slotRival.classList.remove('vazio');
+      slotRival.classList.remove('room__slot_state_empty');
       slotRival.querySelector('strong').textContent = rival.nome;
       const avatar = slotRival.querySelector('.avatar');
-      avatar.classList.remove('vazio');
+      avatar.classList.remove('avatar_state_empty');
       avatar.textContent = rival.nome.slice(0, 2).toUpperCase();
-      slotRival.querySelector('.slot-status').textContent = 'Entrou';
+      slotRival.querySelector('.room__slot-status').textContent = 'Entrou';
     } else {
-      slotRival.classList.add('vazio');
+      slotRival.classList.add('room__slot_state_empty');
       slotRival.querySelector('strong').textContent = 'Aguardando…';
       const avatar = slotRival.querySelector('.avatar');
-      avatar.classList.add('vazio');
+      avatar.classList.add('avatar_state_empty');
       avatar.replaceChildren();
       const spinner = document.createElement('span');
       spinner.className = 'spinner';
       spinner.setAttribute('aria-hidden', 'true');
       avatar.append(spinner);
-      slotRival.querySelector('.slot-status').textContent = 'Compartilhe o link';
+      slotRival.querySelector('.room__slot-status').textContent = 'Compartilhe o link';
     }
   }
 
@@ -384,7 +386,7 @@
     [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].forEach(letra => {
       const botao = document.createElement('button');
       botao.type = 'button';
-      botao.className = 'letra-btn';
+      botao.className = 'keyboard__duel-key';
       botao.textContent = letra;
       botao.dataset.letter = letra;
       botao.setAttribute('aria-label', `Letra ${letra}`);
@@ -418,7 +420,7 @@
     palavra.replaceChildren();
     for (let i = 0; i < sala.tamanho; i++) {
       const slot = document.createElement('span');
-      slot.className = 'letter-slot';
+      slot.className = 'word__slot';
       slot.textContent = reveladas.get(i) ?? '';
       palavra.append(slot);
     }
@@ -427,20 +429,20 @@
     $('mistakesDuelo').textContent = `${eu.erros} / ${sala.maxErros} erros`;
 
     // Boneco do duelo (classes proprias: nao mexe no boneco do modo solo).
-    document.querySelectorAll('#view-duelo .duel-part').forEach(parte => {
-      parte.classList.toggle('visible', Number(parte.dataset.parte) < eu.erros);
+    document.querySelectorAll('#view-duelo .hangman__duel-part').forEach(parte => {
+      parte.classList.toggle('hangman__duel-part_state_visible', Number(parte.dataset.parte) < eu.erros);
     });
 
     const minhasLetras = new Set(eu.letras);
     const letrasCertas = new Set(eu.reveladas.map(r => semAcento(r.caractere)));
     const podeJogar = sala.situacao === 'jogando' && eu.situacao === 'jogando' && !estado.ocupado;
 
-    document.querySelectorAll('#keyboardDuelo .letra-btn').forEach(botao => {
+    document.querySelectorAll('#keyboardDuelo .keyboard__duel-key').forEach(botao => {
       const letra = botao.dataset.letter;
       const usada = minhasLetras.has(letra);
       botao.disabled = usada || !podeJogar;
-      botao.classList.toggle('certa', usada && letrasCertas.has(letra));
-      botao.classList.toggle('errada', usada && !letrasCertas.has(letra));
+      botao.classList.toggle('keyboard__duel-key_state_correct', usada && letrasCertas.has(letra));
+      botao.classList.toggle('keyboard__duel-key_state_wrong', usada && !letrasCertas.has(letra));
     });
 
     if (estado.dicaVisivel) {
@@ -452,7 +454,7 @@
     container.replaceChildren();
     for (let i = 0; i < maximo; i++) {
       const pip = document.createElement('span');
-      pip.className = i < erros ? 'pip pip-cheio' : 'pip';
+      pip.className = i < erros ? 'duel__pip duel__pip_state_full' : 'duel__pip';
       container.append(pip);
     }
     container.setAttribute('aria-label', `${erros} de ${maximo} erros`);
@@ -511,21 +513,21 @@
     container.replaceChildren();
     dados.eventos.slice(-5).forEach(evento => {
       const linha = document.createElement('div');
-      linha.className = 'evento';
+      linha.className = 'duel__event';
 
       const quem = document.createElement('span');
-      quem.className = 'evento-quem';
+      quem.className = 'duel__event-who';
       quem.textContent = nomes.get(evento.usuario_id) || 'Jogador';
 
       const emoji = document.createElement('span');
-      emoji.className = 'evento-emoji';
+      emoji.className = 'duel__event-emoji';
       emoji.textContent = evento.conteudo;
 
       linha.append(quem, emoji);
 
       if (!estado.eventosMostrados.has(evento.id)) {
         estado.eventosMostrados.add(evento.id);
-        linha.classList.add('novo');
+        linha.classList.add('duel__event_state_new');
       }
       container.append(linha);
     });
@@ -603,6 +605,7 @@
       botao.addEventListener('click', () => {
         document.querySelectorAll('[data-tamanho]').forEach(outro => {
           outro.setAttribute('aria-checked', String(outro === botao));
+          outro.classList.toggle('segmented__option_state_checked', outro === botao);
         });
         estado.tamanhoEscolhido = botao.dataset.tamanho;
         localStorage.setItem(TAMANHO_CHAVE, estado.tamanhoEscolhido);
@@ -667,6 +670,7 @@
       estado.tamanhoEscolhido = salvo;
       document.querySelectorAll('[data-tamanho]').forEach(botao => {
         botao.setAttribute('aria-checked', String(botao.dataset.tamanho === salvo));
+        botao.classList.toggle('segmented__option_state_checked', botao.dataset.tamanho === salvo);
       });
     }
 

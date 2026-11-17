@@ -1,0 +1,41 @@
+/* Lista de salas abertas no hub. Os itens sao criados pelo multiplayer.js. */
+.room-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.room-list__item {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--app-card-line);
+  border-radius: 9px;
+  background: var(--app-card);
+}
+
+.room-list__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.room-list__detail {
+  color: var(--app-muted);
+  font-size: 12px;
+}
+
+.room-list__empty {
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px dashed var(--app-line);
+  border-radius: 9px;
+  color: var(--app-muted);
+  font-size: 13px;
+  text-align: center;
+}

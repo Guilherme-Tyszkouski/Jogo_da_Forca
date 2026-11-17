@@ -1,0 +1,106 @@
+/* Desenho da forca em SVG (solo e duelo).
+   - Solo: .hangman.hangman_mode_parallax, partes .hangman__part e .hangman__face.
+   - Duelo: .hangman.hangman_theme_dark, partes .hangman__duel-part (classe
+     propria para o JS do solo nao mexer no boneco do duelo). */
+.hangman {
+  display: grid;
+  place-items: center;
+  perspective: 800px;
+  filter: drop-shadow(18px 24px 12px rgba(32, 20, 15, .34));
+}
+
+.hangman__svg {
+  width: min(330px, 90%);
+  height: 300px;
+  transform: rotateY(-8deg) rotateX(2deg);
+  transform-style: preserve-3d;
+}
+
+/* Inclinacao seguindo o mouse: --parallax-x e --parallax-y sao numeros sem
+   unidade escritos pelo JS no <body> (excecao aprovada). Sem as variaveis,
+   fica igual ao transform padrao acima. */
+.hangman_mode_parallax .hangman__svg {
+  transform: rotateY(calc(-8deg + var(--parallax-x, 0) * .35deg)) rotateX(calc(2deg - var(--parallax-y, 0) * .25deg));
+}
+
+.hangman__gallows,
+.hangman__part,
+.hangman__face {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hangman__gallows {
+  filter: drop-shadow(7px 5px 0 rgba(74, 42, 28, .35));
+}
+
+.hangman__part,
+.hangman__face {
+  opacity: 0;
+}
+
+.hangman__part_state_visible,
+.hangman__face_state_visible {
+  opacity: 1;
+  animation: hangman-drop .5s cubic-bezier(.2, .7, .3, 1.2);
+}
+
+.hangman__face {
+  stroke-width: 4;
+}
+
+.hangman__duel-part {
+  fill: none;
+  stroke: var(--app-duel-ink);
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+
+.hangman__duel-part_state_visible {
+  opacity: 1;
+  animation: hangman-drop .5s cubic-bezier(.2, .7, .3, 1.2);
+}
+
+@keyframes hangman-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hangman_theme_dark {
+  filter: none;
+}
+
+.hangman_theme_dark .hangman__svg {
+  width: 100%;
+  max-width: 260px;
+  height: 240px;
+}
+
+.hangman_theme_dark .hangman__gallows {
+  stroke: var(--app-duel-gallows);
+  filter: none;
+}
+
+@media (max-width: 700px) {
+  .hangman__svg {
+    height: 220px;
+  }
+}
+
+@media (max-width: 620px) {
+  .hangman_theme_dark .hangman__svg {
+    height: 190px;
+  }
+}
