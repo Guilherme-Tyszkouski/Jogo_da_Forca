@@ -1,72 +1,67 @@
-// piranha.js: a maquina de estados da piranha, as migalhas e o desenho dela.
+// piranha.js: a maquina de estados da piranha e o desenho dela.
+// Ela mora no lago, salta (bote) para morder e volta para a agua.
 
 const piranha = {
-  fase: "parada",  // "parada" | "entrando" | "mordendo" | "saindo"
-  x: -100, y: 0,   // posicao do centro do corpo
+  fase: "nadando", // "nadando" | "bote" | "mordendo" | "recuando" | "indo_embora"
+  x: 260, y: 0,    // posicao do centro do corpo
   direcao: -1,     // -1 = olhando para a esquerda, 1 = para a direita
   alvo: 0,         // numero da parte que ela vai comer
   fila: [],        // mordidas esperando a vez (erros rapidos)
-  tempo: 0,        // relogio do balanco no ar
+  tempo: 0,        // relogio do sobe e desce na agua
   tempoMordida: 0, // quanto tempo ja passou mordendo
   boca: 0,         // 0 = fechada, 1 = toda aberta
-  saidaY: 0,       // altura para onde ela sobe ao sair (guardada uma vez)
+  voltaX: 0,       // onde ela cai de volta na agua
 };
 
-const VELOCIDADE = 600;       // pixels por segundo
-const DURACAO_MORDIDA = 0.6;  // segundos mastigando
+const NADO = 70;              // px/s nadando de um lado para o outro
+const NADO_MIN = 200;         // trecho do lago onde ela vai e volta
+const NADO_MAX = 320;
+const VELOCIDADE_BOTE = 900;  // px/s no salto e na volta
+const VELOCIDADE_SAIDA = 260; // px/s indo embora
+const DURACAO_MORDIDA = 0.5;  // segundos mastigando
 const BOCA_FRENTE = 34;       // distancia do centro da piranha ate a boca
+const FORA_X = 680;           // passou daqui (indo embora), saiu de cena
 
-let migalhas = []; // pedacinhos que voam na mordida
+// Na agua, o centro dela fica um pouco abaixo da superficie
+function alturaNaAgua() {
+  return MEDIDA.agua + 18;
+}
 
-// A piranha ainda tem trabalho? (voando ou com mordida na fila)
-function animando() {
-  return piranha.fase !== "parada" || piranha.fila.length > 0;
+// Volta ao lago, nadando, sem mordidas pendentes
+function prepararPiranha() {
+  piranha.fase = "nadando";
+  piranha.x = 260;
+  piranha.y = alturaNaAgua();
+  piranha.direcao = -1;
+  piranha.fila = [];
+  piranha.boca = 0;
+}
+
+// Tem mordida acontecendo ou esperando na fila?
+function piranhaComendo() {
+  return piranha.fila.length > 0 || piranha.fase === "bote" ||
+         piranha.fase === "mordendo" || piranha.fase === "recuando";
+}
+
+// Ainda esta nadando para fora do lago (depois da vitoria)?
+function piranhaSaindo() {
+  return piranha.fase === "indo_embora" && piranha.x < FORA_X;
 }
 
 // ---------------------------------------------------------- atualizar (animacao)
 
-// Onde o CORPO da piranha precisa parar para a BOCA ficar na parte
+// Onde o CORPO precisa parar para a BOCA ficar na parte
 function pontoDeMordida() {
-  const c = centro(PARTES[piranha.alvo]);
+  const c = centroDaParte(piranha.alvo);
   return { x: c.x - piranha.direcao * BOCA_FRENTE, y: c.y };
 }
 
-// Comeca um voo. Ela vem sempre pela esquerda (o lado da forca),
-// para nao passar por cima do texto da direita.
-function comecarVoo(numeroDaParte) {
-  piranha.direcao = 1;                              // olha para a direita
-  piranha.x = -80;                                  // nasce fora da tela
-  piranha.y = centro(PARTES[numeroDaParte]).y - 60; // um pouco acima: entra em diagonal
-  irPara(numeroDaParte);
-}
-
-// Escolhe a proxima parte. Com movimento reduzido, ela aparece ja mordendo.
-function irPara(numeroDaParte) {
-  piranha.alvo = numeroDaParte;
-  if (MOVIMENTO_REDUZIDO) {
-    const p = pontoDeMordida();
-    piranha.x = p.x;
-    piranha.y = p.y;
-    comecarMordida();
-  } else {
-    piranha.fase = "entrando";
-  }
-}
-
-// Chegou na parte: comeca a mastigar
-function comecarMordida() {
-  piranha.fase = "mordendo";
-  piranha.tempoMordida = 0;
-  const c = centro(PARTES[piranha.alvo]);
-  soltarMigalhas(c.x, c.y);
-}
-
-// Anda um pouco em direcao ao ponto (px, py). Devolve true se chegou.
-function andarAte(px, py, dt) {
+// Anda em direcao ao ponto (px, py) com uma velocidade. Devolve true se chegou.
+function andarAte(px, py, velocidade, dt) {
   const dx = px - piranha.x;
   const dy = py - piranha.y;
   const distancia = Math.sqrt(dx * dx + dy * dy);
-  const passo = VELOCIDADE * dt; // quanto anda neste quadro
+  const passo = velocidade * dt; // quanto anda neste quadro
 
   if (distancia <= passo) {
     piranha.x = px;
@@ -78,16 +73,54 @@ function andarAte(px, py, dt) {
   return false;
 }
 
-// Joga alguns pedacinhos para os lados
-function soltarMigalhas(x, y) {
-  if (MOVIMENTO_REDUZIDO) return; // sem pedacinhos voando
-  for (let i = 0; i < 8; i++) {
-    migalhas.push({
-      x: x, y: y,
-      vx: (Math.random() - 0.5) * 240, // velocidade para os lados (px/s)
-      vy: -Math.random() * 200,        // para cima (px/s)
-      vida: 0.6,                       // segundos ate sumir
-    });
+// Salta da agua em direcao a proxima parte
+function comecarBote(numeroDaParte) {
+  piranha.alvo = numeroDaParte;
+  piranha.direcao = piranha.x < centroDaParte(numeroDaParte).x ? 1 : -1; // vira para a parte
+  piranha.boca = 0.4;
+  soltarParticulas(piranha.x, MEDIDA.agua, 10, COR.aguaClara, 260); // respingo da saida
+  if (MOVIMENTO_REDUZIDO) {
+    const p = pontoDeMordida(); // sem salto: aparece ja na parte
+    piranha.x = p.x;
+    piranha.y = p.y;
+    comecarMordida();
+  } else {
+    piranha.fase = "bote";
+  }
+}
+
+// Chegou na parte: mastiga, solta migalhas e respingos, e a tela treme
+function comecarMordida() {
+  piranha.fase = "mordendo";
+  piranha.tempoMordida = 0;
+  const c = centroDaParte(piranha.alvo);
+  soltarParticulas(c.x, c.y, 10, COR.boneco, 240);   // migalhas
+  soltarParticulas(c.x, c.y, 5, COR.aguaClara, 200); // agua pingando dela
+  comecarTremida();
+  mostrarNoPalco("PIRANHA MORDENDO!");
+}
+
+// Volta para a agua levando a parte
+function comecarRecuo() {
+  piranha.fase = "recuando";
+  piranha.boca = 0.2;
+  // cai no lago, no trecho onde ela nada
+  piranha.voltaX = Math.max(NADO_MIN, Math.min(NADO_MAX, piranha.x + piranha.direcao * 40));
+  if (MOVIMENTO_REDUZIDO) {
+    piranha.x = piranha.voltaX;
+    piranha.y = alturaNaAgua();
+    chegouNaAgua();
+  }
+}
+
+// Caiu na agua: tem mais mordida na fila? Salta de novo. Se nao, nada.
+function chegouNaAgua() {
+  soltarParticulas(piranha.x, MEDIDA.agua, 10, COR.aguaClara, 260); // respingo
+  if (piranha.fila.length > 0) {
+    comecarBote(piranha.fila.shift());
+  } else {
+    piranha.fase = "nadando";
+    piranha.boca = 0;
   }
 }
 
@@ -95,76 +128,74 @@ function soltarMigalhas(x, y) {
 function atualizarPiranha(dt) {
   piranha.tempo += dt;
 
-  if (piranha.fase === "parada") {
-    if (piranha.fila.length > 0) comecarVoo(piranha.fila.shift()); // tem mordida na fila
+  if (piranha.fase === "nadando") {
+    if (piranha.fila.length > 0) {
+      comecarBote(piranha.fila.shift()); // tem mordida na fila
+    } else if (estado.fase === "ganhou") {
+      piranha.fase = "indo_embora";      // perdeu a janta: vai embora
+      piranha.direcao = 1;
+      if (MOVIMENTO_REDUZIDO) piranha.x = FORA_X;
+    } else if (!MOVIMENTO_REDUZIDO) {
+      // vai e volta; vira quando chega numa ponta do trecho
+      piranha.x += piranha.direcao * NADO * dt;
+      if (piranha.x < NADO_MIN) piranha.direcao = 1;
+      if (piranha.x > NADO_MAX) piranha.direcao = -1;
+      piranha.y = alturaNaAgua() + Math.sin(piranha.tempo * 3) * 3;
+    }
     return;
   }
 
-  if (piranha.fase === "entrando") {
-    piranha.boca = 0.3; // boca entreaberta no voo
+  if (piranha.fase === "bote") {
     const p = pontoDeMordida();
-    if (andarAte(p.x, p.y, dt)) comecarMordida();
+    if (andarAte(p.x, p.y, VELOCIDADE_BOTE, dt)) comecarMordida();
     return;
   }
 
   if (piranha.fase === "mordendo") {
     piranha.tempoMordida += dt;
+    // fica grudada na parte (o boneco balanca)
+    const p = pontoDeMordida();
+    piranha.x = p.x;
+    piranha.y = p.y;
     // abre e fecha a boca 5 vezes por segundo (seno vai de -1 a 1)
     piranha.boca = (Math.sin(piranha.tempoMordida * Math.PI * 2 * 5) + 1) / 2;
     // a parte encolhe de 1 ate 0 durante a mordida
-    const resto = 1 - piranha.tempoMordida / DURACAO_MORDIDA;
-    boneco.escala[piranha.alvo] = Math.max(0, resto);
+    boneco.escala[piranha.alvo] = Math.max(0, 1 - piranha.tempoMordida / DURACAO_MORDIDA);
 
     if (piranha.tempoMordida >= DURACAO_MORDIDA) {
       boneco.escala[piranha.alvo] = 0; // comida de vez
-      if (piranha.fila.length > 0) {
-        irPara(piranha.fila.shift()); // tem mais na fila: vai direto, sem sair
-      } else if (MOVIMENTO_REDUZIDO) {
-        terminarVoo();                // some na hora, sem voar para fora
-      } else {
-        piranha.fase = "saindo";
-        piranha.saidaY = -80;         // sobe ate sair por cima
-      }
+      avisarMordida(piranha.alvo);     // so agora o leitor de tela fica sabendo
+      comecarRecuo();
     }
     return;
   }
 
-  if (piranha.fase === "saindo") {
-    piranha.boca = 0;
-    // sobe reto (x nao muda) ate sair por cima da tela
-    if (andarAte(piranha.x, piranha.saidaY, dt)) terminarVoo();
+  if (piranha.fase === "recuando") {
+    if (andarAte(piranha.voltaX, alturaNaAgua(), VELOCIDADE_BOTE, dt)) chegouNaAgua();
+    return;
   }
-}
 
-// A piranha saiu de cena. Se nao tem mais nada na fila, avisa o fim.
-function terminarVoo() {
-  piranha.fase = "parada";
-  if (piranha.fila.length === 0) fimDasMordidas();
-}
-
-// Migalhas caem com gravidade e somem
-function atualizarMigalhas(dt) {
-  for (const m of migalhas) {
-    m.vy += 500 * dt; // gravidade (px/s a cada segundo)
-    m.x += m.vx * dt;
-    m.y += m.vy * dt;
-    m.vida -= dt;
+  if (piranha.fase === "indo_embora" && piranha.x < FORA_X) {
+    piranha.x += VELOCIDADE_SAIDA * dt; // nada para a direita ate sair
+    piranha.y = alturaNaAgua();
   }
-  migalhas = migalhas.filter(function (m) { return m.vida > 0; });
 }
 
 // ---------------------------------------------------------- desenho
 
-// A piranha voadora: desenhada olhando para a direita, e virada com scale
+// Desenhada olhando para a direita; virada com scale e inclinada com rotate
 function desenharPiranha() {
-  if (piranha.fase === "parada") return; // fora de cena
+  if (piranha.x >= FORA_X) return; // ja foi embora
 
-  // sobe e desce no ar (parada, se a pessoa pediu menos movimento)
-  const balanco = MOVIMENTO_REDUZIDO ? 0 : Math.sin(piranha.tempo * 8) * 4;
+  // nariz para cima no salto, para baixo na volta
+  let inclinacao = 0;
+  if (piranha.fase === "bote") inclinacao = -0.35;
+  if (piranha.fase === "recuando") inclinacao = 0.35;
 
   ctx.save();
-  ctx.translate(piranha.x, piranha.y + balanco);
+  ctx.translate(piranha.x, piranha.y);
   ctx.scale(piranha.direcao, 1); // direcao -1 espelha o desenho
+  ctx.rotate(inclinacao);
 
   // cauda em forquilha (dois triangulos)
   ctx.fillStyle = COR.piranhaEscura;
@@ -188,6 +219,14 @@ function desenharPiranha() {
   ctx.fillStyle = COR.dente;
   triangulo(20, 2, 23, 8, 26, 2);
   triangulo(26, 1, 29, 7, 32, 1);
+
+  // levando a parte comida de volta para a agua: um pedaco branco na boca
+  if (piranha.fase === "recuando") {
+    ctx.strokeStyle = COR.boneco;
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    linha(24, 6, 44, 12);
+  }
 
   // mandibula de baixo: gira para abrir. Sai para fora do corpo (queixo pra frente)
   ctx.save();
@@ -219,14 +258,4 @@ function desenharPiranha() {
   ctx.fill();
 
   ctx.restore();
-}
-
-// Pedacinhos brancos da mordida
-function desenharMigalhas() {
-  ctx.fillStyle = COR.boneco;
-  for (const m of migalhas) {
-    ctx.globalAlpha = Math.max(0, m.vida / 0.6); // somem aos poucos
-    ctx.fillRect(m.x - 2, m.y - 2, 4, 4);
-  }
-  ctx.globalAlpha = 1;
 }

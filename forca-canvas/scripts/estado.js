@@ -1,7 +1,9 @@
-// estado.js: as regras do jogo (palavra, chutes, erros, fim).
+// estado.js: as regras do jogo (palavra, chutes, erros, fim) e os avisos.
 // Nada de desenho aqui. So declara: quem chama as funcoes e o main.js.
 
 const areaStatus = document.getElementById("status"); // texto para leitor de tela
+const textoResultado = document.getElementById("resultado"); // lido junto com o botao Nova partida
+let recadoPalco = ""; // recado curto que o palco desenha embaixo do lago
 
 // Lista de palavras do laboratorio (so para treino).
 // No jogo de verdade a palavra fica no servidor (regra de ouro do AGENTS.md).
@@ -31,7 +33,8 @@ const estado = {
   certas: [],   // letras chutadas que estao na palavra
   erradas: [],  // letras chutadas que NAO estao na palavra
   maxErros: 6,
-  fase: "jogando", // "jogando" | "ganhou" | "perdeu"
+  fase: "jogando",     // "jogando" | "ganhou" | "perdeu"
+  fimAnunciado: false, // a tela de fim ja apareceu? (so depois das animacoes)
 };
 
 // Quantos erros: e so o tamanho da lista de erradas (sem guardar duas vezes)
@@ -54,24 +57,22 @@ function novaPartida() {
   estado.certas = [];
   estado.erradas = [];
   estado.fase = "jogando";
+  estado.fimAnunciado = false;
 
-  // boneco inteiro de novo e piranha fora da tela
-  boneco.escala = [1, 1, 1, 1, 1, 1];
-  boneco.tempoPulo = 0;
-  piranha.fase = "parada";
-  piranha.fila = [];
-  piranha.x = -100;
-  migalhas = [];
+  textoResultado.textContent = "";
+
+  prepararPalco(); // boneco, piranha, particulas e tremida do zero (palco.js)
 
   atualizarTeclado();
   if (focoNoBotao) teclado.firstElementChild.focus();
+  mostrarNoPalco("Escolha uma letra!");
   avisar("Nova partida. Categoria " + estado.categoria + ", " +
          estado.palavra.length + " letras. Palavra: " + textoPalavra() + ".");
 }
 
-// So comeca outra partida se a atual acabou e a piranha terminou
+// So comeca outra partida depois que a tela de fim apareceu
 function reiniciar() {
-  if (estado.fase !== "jogando" && !animando()) novaPartida();
+  if (estado.fimAnunciado) novaPartida();
 }
 
 // O jogador chutou uma letra (vem do teclado fisico ou dos botoes)
@@ -92,7 +93,9 @@ function chutar(letra) {
   }
 
   atualizarTeclado();
-  if (!verificarFim()) avisarJogada(letra); // se acabou, o aviso de fim ja foi dado
+  // Na derrota o verificarFim ja deu o aviso. Na vitoria e uma jogada comum:
+  // o "Voce ganhou" so vem no fimDasMordidas, depois da ultima mordida.
+  if (!verificarFim()) avisarJogada(letra);
 }
 
 // Quantas vezes a letra aparece na palavra
@@ -119,9 +122,12 @@ function avisarJogada(letra) {
   const vezes = contar(letra);
   if (vezes > 0) {
     texto = "Acertou: a letra " + letra + " aparece " + vezes + (vezes === 1 ? " vez." : " vezes.");
+    mostrarNoPalco("Acertou! Tem " + letra + ".");
   } else {
-    texto = "Errou: nao tem " + letra + ". A piranha vai comer " + PARTES[erros() - 1].nome +
-            ". Erros: " + erros() + " de " + estado.maxErros + ".";
+    // Nao fala da piranha aqui: a parte so e anunciada quando a mordida
+    // termina (avisarMordida), para o aviso bater com a animacao.
+    texto = "Errou: nao tem " + letra + ". Erros: " + erros() + " de " + estado.maxErros + ".";
+    mostrarNoPalco("Errou! Nao tem " + letra + ".");
   }
   texto += " Palavra: " + textoPalavra() + ".";
   if (estado.erradas.length > 0) {
@@ -138,53 +144,69 @@ function palavraCompleta() {
   return true;
 }
 
-// Decide se a partida acabou. Devolve true se acabou.
+// Decide se a partida acabou. Devolve true so se ja deu o aviso (derrota).
+// A tela de fim NAO aparece aqui: o palco.js chama fimDasMordidas quando
+// todas as animacoes pararem (ultima mordida, ou boneco na margem).
 function verificarFim() {
   if (palavraCompleta()) {
+    // Ganhou, mas a piranha ainda pode ter mordidas na fila: nada de
+    // "Voce ganhou" agora (quem avisa e o fimDasMordidas)
     estado.fase = "ganhou";
     atualizarTeclado();
-    if (animando()) {
-      // a piranha ainda esta voando: o Enter so vale depois (fimDasMordidas)
-      avisar("Voce ganhou! A palavra era " + estado.palavra + ".");
-    } else {
-      fimDasMordidas(); // nada voando: ja mostra o fim
-    }
-    return true;
+    return false;
   }
   if (erros() >= estado.maxErros) {
-    // A regra ja decidiu: perdeu. O aviso de fim espera a ultima mordida.
     estado.fase = "perdeu";
     atualizarTeclado();
-    avisar("Errou: nao tem " + estado.erradas[erros() - 1] +
-           ". A piranha vai comer " + PARTES[erros() - 1].nome + ", a ultima parte.");
+    const letra = estado.erradas[erros() - 1];
+    avisar("Errou: nao tem " + letra + ". Erros: " + erros() + " de " + estado.maxErros + ".");
+    mostrarNoPalco("Errou! Nao tem " + letra + ".");
     return true;
   }
   return false; // ainda jogando
 }
 
-// Chamado quando a piranha termina a ultima mordida da fila
-// (ou na hora, se ganhou sem nada voando)
-function fimDasMordidas() {
-  atualizarTeclado(); // mostra o botao Nova partida, se a partida acabou
-  if (estado.fase === "jogando") return; // so acabou uma mordida, segue o jogo
+// A piranha terminou uma mordida: so agora avisa qual parte foi devorada
+function avisarMordida(numero) {
+  avisar("Piranha mordendo! " + PARTES[numero].aviso + ".");
+  mostrarNoPalco("PIRANHA MORDENDO!\n" + PARTES[numero].aviso + "!");
+}
 
+// Chamado pelo palco.js quando a partida acabou e as animacoes pararam
+function fimDasMordidas() {
+  estado.fimAnunciado = true;
+  atualizarTeclado(); // mostra o botao Nova partida
+
+  let resultado;
   if (estado.fase === "perdeu") {
-    avisar("Voce perdeu. A piranha comeu o boneco inteiro. A palavra era " +
-           estado.palavra + ". Aperte Enter ou o botao Nova partida.");
+    resultado = "Voce perdeu. A piranha comeu o boneco inteiro. A palavra era " + estado.palavra + ".";
+    mostrarNoPalco("A piranha devorou o boneco!");
   } else {
-    avisar("Voce ganhou! A palavra era " + estado.palavra +
-           ". Aperte Enter ou o botao Nova partida.");
+    resultado = "Voce ganhou! A palavra era " + estado.palavra + ".";
+    mostrarNoPalco("Ufa! O boneco escapou!");
   }
-  // as letras ficaram travadas: o foco vai para o botao, e nao se perde
-  botaoNova.focus();
+  avisar(resultado + " Aperte Enter ou o botao Nova partida.");
+  // o botao "le" o resultado junto com o nome (aria-describedby="resultado")
+  textoResultado.textContent = resultado;
+
+  // So puxa o foco se ele estava perdido (no body) ou numa letra travada.
+  // Se a pessoa esta em outro lugar (ex.: no checkbox), deixa onde esta.
+  const foco = document.activeElement;
+  if (foco === document.body || teclado.contains(foco)) botaoNova.focus();
 }
 
 // Escreve o status na regiao aria-live (o leitor de tela anuncia).
-// Apaga antes e escreve um pouco depois: assim uma frase igual a anterior
-// tambem e lida de novo.
+// Cada aviso entra como uma linha NOVA em vez de trocar o texto: assim o
+// aviso do fim de uma mordida nao apaga o aviso do chute que acabou de sair
+// (o leitor le os dois, na ordem). Ficam so as 3 ultimas linhas.
 function avisar(texto) {
-  areaStatus.textContent = "";
-  setTimeout(function () {
-    areaStatus.textContent = texto;
-  }, 50);
+  const linhaNova = document.createElement("p");
+  linhaNova.textContent = texto;
+  areaStatus.appendChild(linhaNova);
+  if (areaStatus.children.length > 3) areaStatus.firstElementChild.remove();
+}
+
+// Troca o recado curto que o palco desenha embaixo do lago
+function mostrarNoPalco(texto) {
+  recadoPalco = texto;
 }

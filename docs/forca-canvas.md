@@ -255,3 +255,70 @@ jogos web (ex.: Jungle Gaming) pedem.
     `#keyboardDuelo` vem antes do `#keyboard` no DOM.
   - `forca-canvas/`: medidas do desenho ainda estao espalhadas (so as cores
     foram para `tema.js`); foco cai no BODY ao clicar letra (Noite 3).
+
+### 2026-11-17 — Fase 2: Palco v2
+- Feito por `canvas-game-developer` (secoes 4.5 e 5 do plano):
+  - Cenario: forca na margem de um lago (`scripts/cenario.js`); canvas
+    600x440. Particulas (migalhas, respingos, suor) em `scripts/particulas.js`.
+  - Devoracao de baixo para cima: perna esq, perna dir, braco esq, braco dir,
+    tronco, cabeca. Parte comida vira osso cinza; a cabeca, contorno
+    tracejado.
+  - Boneco (`boneco.js` + `boneco-desenho.js`): `balancando`, `panico`
+    (olhos arregalados, grito, suor, bracos para cima, joelhos dobrados),
+    `aliviado` (corda solta, cai com gravidade NA MARGEM e comemora),
+    `devorado`.
+  - Piranha (`piranha.js`): `nadando`, `bote` (salto a 900 px/s),
+    `mordendo` (0,5 s; particulas; tremida de 6 px por 0,2 s), `recuando`
+    (com fila, salta de novo direto), `indo_embora` (na vitoria).
+  - Fim da partida por um sinal so, `estado.fimAnunciado`, ligado quando a
+    partida acabou e `animando()` e falso.
+  - Opcao "Tremer a tela" (checkbox, lembrada no localStorage em try/catch);
+    desligada com `MOVIMENTO_REDUZIDO`.
+  - Cores novas da paleta 3.3 no objeto `COR` de `tema.js`; medidas do
+    cenario no objeto `MEDIDA`.
+- Decisao (plano 4.5, troca a da Noite 3): o aviso da mordida sai QUANDO A
+  MORDIDA TERMINA ("Piranha mordendo! Perna esquerda devorada."). No chute,
+  so "Errou: nao tem D...". `#status` virou `role="log"`: `avisar()`
+  acrescenta um `<p>` (guarda os 3 ultimos), entao um aviso nao apaga o
+  outro. O mesmo recado aparece desenhado embaixo do lago.
+- `css-architect`: bloco `blocks/settings.css` (area de toque de 44px, foco
+  visivel, aviso `settings__hint` embaixo); `--color-text-muted` (#9a9a9a,
+  6,71:1) em `page.css`.
+- Revisao do `frontend-reviewer`: nada critico/alto; 3 medios e 7 baixos,
+  todos corrigidos pelo `canvas-game-developer`:
+  - M1: vitoria era anunciada duas vezes com mordidas na fila. Decisao do
+    orquestrador: a fila termina (erros = partes comidas) e "Voce ganhou" e
+    anunciado uma vez, em `fimDasMordidas()`, como a derrota.
+  - M2: com reduced-motion o checkbox usa `aria-disabled` (alcancavel por
+    Tab) e mostra "Desligado: seu sistema pede menos movimento."
+    (`aria-describedby`).
+  - M3: no fim, o foco so vai para "Nova partida" se estava no `body` ou no
+    teclado; o botao carrega o resultado por `aria-describedby="resultado"`.
+  - Baixos: foco ao digitar a letra do botao focado; balanco suave
+    (`0.05 + 0.07 * medo`) e giro da queda com dt; canvas sem
+    `aria-describedby` do historico; comentarios do `tema.js` corrigidos;
+    `tremer()` virou `comecarTremida()`; `prepararPalco()` zera as animacoes;
+    `boneco.js` dividido (186 + 128 linhas).
+- Validacao (executada pelos agentes, Chrome headless por `file://`):
+  - Uma captura por estado das duas maquinas (scratchpad `fase2/` e
+    `fase2-correcoes/`).
+  - 6 erros rapidos ate o botao: 4661 ms; aviso de cada mordida no mesmo
+    quadro em que a parte some.
+  - Vitoria com 3 mordidas na fila: "Voce ganhou" uma vez, no fim (4100 ms);
+    boneco pousa na margem (pes em y 232, cabeca em x 112-115; a agua comeca
+    em x 140).
+  - Tremida 6 px ligada / 0 desligada; reduced-motion: 6 erros em 3044 ms,
+    0 particulas, Tab chega no checkbox.
+  - 360px sem rolagem horizontal; nenhum erro no console.
+  - Conferido pelo orquestrador: zero `<style>`/`style=""`, `pages/index.css`
+    so `@import`, so seletores de classe, nenhuma cor fora de `tema.js`,
+    nenhum `.style`, `node --check` nos 10 scripts.
+  - Nao validado: navegador do Guilherme, leitor de tela real (NVDA,
+    VoiceOver), Firefox/Safari, celular real, reduced-motion real no sistema,
+    fluidez da animacao.
+- Pendente:
+  - Mudar a preferencia de movimento com a pagina aberta nao e detectado
+    (`MOVIMENTO_REDUZIDO` e lido so no carregamento).
+  - Com reduced-motion, `bote` e `recuando` acontecem no mesmo quadro.
+  - Textos do canvas ficam com ~13px no celular.
+  - Os 2 bugs antigos do `public/` registrados na Fase 1.

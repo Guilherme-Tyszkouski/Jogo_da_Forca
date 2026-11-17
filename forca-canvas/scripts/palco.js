@@ -1,16 +1,35 @@
 // palco.js: o laco do jogo e o desenho geral do canvas
-// (forca, palavra, informacoes e caixa de fim).
+// (palavra, informacoes, recado do palco e caixa de fim).
 
 // A lousa e o pincel
 const tela = document.getElementById("tela");
 const ctx = tela.getContext("2d");
 
+// Deixa o palco pronto para uma partida nova: boneco inteiro pendurado,
+// piranha nadando sem mordidas na fila, nada voando e a tela parada
+function prepararPalco() {
+  prepararBoneco();
+  prepararPiranha();
+  particulas = [];
+  cenario.tremida = 0;
+}
+
 // Muda tudo que se mexe com o tempo. dt = segundos desde o ultimo quadro.
 function atualizar(dt) {
+  atualizarCenario(dt);
   atualizarPiranha(dt);
-  atualizarMigalhas(dt);
-  // relogio do pulinho: so anda quando a piranha ja terminou
-  if (estado.fase === "ganhou" && !animando()) boneco.tempoPulo += dt;
+  atualizarBoneco(dt);
+  atualizarParticulas(dt);
+
+  // A partida acabou e todas as animacoes terminaram? Agora sim: tela de fim.
+  if (estado.fase !== "jogando" && !estado.fimAnunciado && !animando()) {
+    fimDasMordidas();
+  }
+}
+
+// Ainda tem animacao que precisa terminar antes da tela de fim?
+function animando() {
+  return piranhaComendo() || piranhaSaindo() || bonecoCaindo();
 }
 
 // ---------------------------------------------------------- desenho
@@ -33,25 +52,13 @@ function triangulo(ax, ay, bx, by, cx, cy) {
   ctx.fill();
 }
 
-// A forca: base, poste, viga e corda
-function desenharForca() {
-  ctx.strokeStyle = COR.forca;
-  ctx.lineWidth = 6;
-  ctx.lineCap = "round";
-  linha(40, 280, 200, 280);  // base
-  linha(80, 280, 80, 40);    // poste
-  linha(80, 40, 190, 40);    // viga
-  ctx.lineWidth = 3;
-  linha(190, 40, 190, 75);   // corda
-}
-
 // A palavra: tracinho para cada letra, e a letra em cima se ja acertou
 function desenharPalavra() {
   // Espaco de cada letra: no maximo 40, menor se a palavra for comprida
   const largura = Math.min(40, (tela.width - 40) / estado.palavra.length);
   const total = estado.palavra.length * largura;
   const inicioX = (tela.width - total) / 2; // centraliza
-  const y = 360;
+  const y = 410;
   const meioTraco = largura * 0.36;         // metade do tracinho
 
   ctx.textAlign = "center";
@@ -66,69 +73,82 @@ function desenharPalavra() {
     ctx.lineWidth = 3;
     linha(x - meioTraco, y + 6, x + meioTraco, y + 6);
 
-    // letra: mostra se acertou, ou (em vermelho) se perdeu
+    // letra: mostra se acertou, ou (em vermelho) se perdeu e a tela de fim chegou
     if (estado.certas.includes(letra)) {
       ctx.fillStyle = COR.texto;
       ctx.fillText(letra, x, y);
-    } else if (estado.fase === "perdeu" && !animando()) {
+    } else if (estado.fase === "perdeu" && estado.fimAnunciado) {
       ctx.fillStyle = COR.erro;
       ctx.fillText(letra, x, y);
     }
   }
 }
 
-// Lado direito: categoria, erros e letras erradas.
+// Lado direito: categoria, erros e letras erradas (acima do lago).
 // Fontes grandes porque no celular o canvas encolhe para quase metade.
 function desenharInfo() {
+  if (estado.fimAnunciado) return; // a caixa de fim fica neste lugar
+  const x = 330;
   ctx.textAlign = "left";
 
   ctx.fillStyle = COR.fraco;
   ctx.font = "24px sans-serif";
-  ctx.fillText("Categoria", 290, 70);
+  ctx.fillText("Categoria", x, 56);
   ctx.fillStyle = COR.texto;
   ctx.font = "bold 32px sans-serif";
-  ctx.fillText(estado.categoria, 290, 108);
+  ctx.fillText(estado.categoria, x, 92);
 
   ctx.fillStyle = COR.fraco;
   ctx.font = "24px sans-serif";
-  ctx.fillText("Erros: " + erros() + " de " + estado.maxErros, 290, 160);
+  ctx.fillText("Erros: " + erros() + " de " + estado.maxErros, x, 136);
 
-  ctx.fillText("Letras erradas", 290, 205);
+  ctx.fillText("Letras erradas", x, 178);
   ctx.fillStyle = COR.erro;
   ctx.font = "bold 28px monospace";
-  ctx.fillText(estado.erradas.join(" "), 290, 242);
+  ctx.fillText(estado.erradas.join(" "), x, 214);
 }
 
-// A caixa de fim so aparece depois que a piranha terminou de comer
-function mostrandoMensagem() {
-  return estado.fase !== "jogando" && !animando();
+// O recado do palco, embaixo do lago (ex.: "PIRANHA MORDENDO!").
+// Pode ter duas linhas, separadas por \n.
+function desenharRecado() {
+  ctx.textAlign = "center";
+  ctx.fillStyle = COR.texto;
+  ctx.font = "bold 24px sans-serif";
+  const linhas = recadoPalco.split("\n");
+  for (let i = 0; i < linhas.length; i++) {
+    ctx.fillText(linhas[i], tela.width / 2, 328 + i * 30);
+  }
 }
 
-// Caixa por cima de tudo quando a partida acaba
+// Caixa de fim, do lado direito (o boneco e a forca continuam a vista)
 function desenharMensagem() {
-  if (!mostrandoMensagem()) return;
+  if (!estado.fimAnunciado) return;
 
-  // fundo escuro quase opaco
+  const meio = 415; // meio da caixa
   ctx.fillStyle = COR.sombra;
-  ctx.fillRect(70, 95, 460, 180);
+  ctx.fillRect(240, 26, 350, 206); // termina no chao, acima do lago
 
   ctx.textAlign = "center";
+  ctx.font = "bold 40px sans-serif";
   if (estado.fase === "ganhou") {
     ctx.fillStyle = COR.acerto;
-    ctx.font = "bold 44px sans-serif";
-    ctx.fillText("Voce ganhou!", 300, 160);
+    ctx.fillText("Voce ganhou!", meio, 72);
   } else {
     ctx.fillStyle = COR.erro;
-    ctx.font = "bold 44px sans-serif";
-    ctx.fillText("Voce perdeu", 300, 150);
-    ctx.fillStyle = COR.texto;
-    ctx.font = "26px sans-serif";
-    ctx.fillText("A palavra era " + estado.palavra, 300, 197);
+    ctx.fillText("Voce perdeu", meio, 72);
   }
 
   ctx.fillStyle = COR.fraco;
   ctx.font = "24px sans-serif";
-  ctx.fillText("Enter ou o botao para jogar de novo", 300, 248);
+  ctx.fillText("A palavra era", meio, 110);
+  ctx.fillStyle = COR.texto;
+  ctx.font = "bold 30px sans-serif";
+  ctx.fillText(estado.palavra, meio, 146);
+
+  ctx.fillStyle = COR.fraco;
+  ctx.font = "24px sans-serif";
+  ctx.fillText("Enter ou o botao", meio, 188);
+  ctx.fillText("para jogar de novo", meio, 218);
 }
 
 // Desenhar: apaga tudo e pinta de novo, na ordem (o ultimo fica por cima)
@@ -136,13 +156,18 @@ function desenhar() {
   ctx.fillStyle = COR.fundo;
   ctx.fillRect(0, 0, tela.width, tela.height); // "apaga" a lousa
 
-  desenharForca();
-  desenharBoneco();
-  desenharPalavra();
+  ctx.save();
+  aplicarTremida();        // empurra tudo alguns pixels (se estiver tremendo)
+  desenharCenario();       // lago, margem e forca
   desenharInfo();
-  desenharMigalhas();
-  desenharPiranha(); // por cima do boneco (ela voa so do lado esquerdo)
+  desenharBoneco();
+  desenharPiranha();
+  desenharAguaDaFrente();  // por cima da piranha: ela fica "dentro" do lago
+  desenharParticulas();
+  desenharRecado();
+  desenharPalavra();
   desenharMensagem();
+  ctx.restore();
 }
 
 // ---------------------------------------------------------- laco do jogo

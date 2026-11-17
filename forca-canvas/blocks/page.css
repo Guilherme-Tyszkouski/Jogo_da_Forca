@@ -14,6 +14,7 @@
   --color-control-bg: #2a2a3a;
   --color-control-border: #555;
   --color-focus: #f5c542;
+  --color-text-muted: #9a9a9a; /* paleta 3.3; 6.7:1 sobre #111 */
   --font-text: system-ui, sans-serif;
   --font-key: monospace;
 }

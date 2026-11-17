@@ -3,5 +3,6 @@
 
 criarTeclado();              // botoes de letra (teclado.js)
 ligarTeclado();              // cliques e teclado fisico (teclado.js)
+ligarAjustes();              // checkbox "Tremer a tela" (cenario.js)
 novaPartida();               // sorteia a primeira palavra (estado.js)
 requestAnimationFrame(laco); // atualizar -> desenhar -> proximo quadro (palco.js)

@@ -1,0 +1,66 @@
+/* Ajustes do jogo (ex.: checkbox "Tremer a tela"). Discreto, abaixo do teclado */
+.settings {
+  display: flex;
+  flex-direction: column; /* o aviso (__hint) fica embaixo do label */
+  align-items: center;
+  gap: 4px;
+  max-width: 600px;
+}
+
+/* O label inteiro e a area clicavel: 44px de altura, bom para o dedo */
+.settings__label {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font: 16px var(--font-text);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.settings__checkbox {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* Foco por teclado: o contorno abraca o label todo (caixa + texto) */
+.settings__label:has(.settings__checkbox:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Navegador sem :has(): o contorno fica so na caixinha */
+@supports not selector(:has(*)) {
+  .settings__checkbox:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+/* Desligado (reduced-motion): o JS liga o modificador no label. O checkbox
+   usa aria-disabled (nao disabled), entao o estilo vem so da classe */
+.settings__label_disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.settings__label_disabled .settings__checkbox {
+  cursor: not-allowed;
+}
+
+/* Aviso do motivo. Sem "display" de proposito: quem mostra/esconde e o
+   atributo hidden (regra [hidden] do normalize), que este bloco nao pode vencer */
+.settings__hint {
+  margin: 0;
+  padding: 0 12px;
+  font: 14px var(--font-text);
+  color: var(--color-text-muted);
+}

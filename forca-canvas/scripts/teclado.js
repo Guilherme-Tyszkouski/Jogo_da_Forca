@@ -16,8 +16,25 @@ function criarTeclado() {
     botao.dataset.letra = letra;           // guarda a letra no botao
     botao.addEventListener("click", function () {
       chutar(letra);                       // mesma funcao do teclado fisico
+      // o botao usado fica travado e perderia o foco (cairia no BODY)
+      if (botao.disabled) focarProximaLetra(botao);
     });
     teclado.appendChild(botao);
+  }
+}
+
+// Passa o foco para a proxima letra livre (volta ao A depois do Z).
+// Se nenhuma estiver livre (fim da partida), o foco vai para o botao
+// Nova partida quando ele aparecer (fimDasMordidas).
+function focarProximaLetra(botao) {
+  const botoes = Array.from(teclado.children);
+  const inicio = botoes.indexOf(botao);
+  for (let i = 1; i < botoes.length; i++) {
+    const outro = botoes[(inicio + i) % botoes.length];
+    if (!outro.disabled) {
+      outro.focus();
+      return;
+    }
   }
 }
 
@@ -38,8 +55,8 @@ function atualizarTeclado() {
     if (errada) nome += ", errou";
     botao.setAttribute("aria-label", nome);
   }
-  // So aparece no fim, depois que a piranha terminou
-  botaoNova.hidden = estado.fase === "jogando" || animando();
+  // So aparece no fim, depois que todas as animacoes terminaram
+  botaoNova.hidden = !estado.fimAnunciado;
 }
 
 // ---------------------------------------------------------- teclado fisico
@@ -60,7 +77,11 @@ function teclaApertada(evento) {
   // So aceita uma letra de A a Z
   const letra = evento.key.toUpperCase();
   if (/^[A-Z]$/.test(letra)) {
+    const focado = document.activeElement; // guarda antes: o chute pode travar esse botao
     chutar(letra);
+    // digitou a letra do botao que estava com o foco? ele travou: o foco
+    // passa para a proxima letra livre (senao cairia no BODY)
+    if (focado.disabled && teclado.contains(focado)) focarProximaLetra(focado);
   }
 }
 
