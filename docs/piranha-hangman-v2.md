@@ -397,14 +397,14 @@ Cofre: `C:\Users\Guilherme Tyszkouski\OneDrive\Documents\SEGUNDO CEREBRO`
 
 ## 10. Checklist final da sessão
 
-- [ ] Branch `feature/piranha-hangman-v2` criada e enviada; nada commitado na
+- [x] Branch `feature/piranha-hangman-v2` criada e enviada; nada commitado na
   `main`
-- [ ] `canvas-game-developer.agent.md` movido para `.github/agents/`
-- [ ] `css-architect` criado e listado no `AGENTS.md`
-- [ ] Seção "Padrão de código (obrigatório)" no `AGENTS.md`
-- [ ] Fase 1 concluída: zero CSS dentro do HTML ou do JS
-- [ ] Fase 2 concluída e revisada pelo `frontend-reviewer`
-- [ ] `docs/forca-canvas.md` com as entradas datadas
-- [ ] Segundo Cérebro atualizado (projeto, padrão global, nota da sessão,
+- [x] `canvas-game-developer.agent.md` movido para `.github/agents/`
+- [x] `css-architect` criado e listado no `AGENTS.md`
+- [x] Seção "Padrão de código (obrigatório)" no `AGENTS.md`
+- [x] Fase 1 concluída: zero CSS dentro do HTML ou do JS
+- [x] Fase 2 concluída e revisada pelo `frontend-reviewer`
+- [x] `docs/forca-canvas.md` com as entradas datadas
+- [x] Segundo Cérebro atualizado (projeto, padrão global, nota da sessão,
   índices)
-- [ ] Pull Request aberto para a `main`, aguardando o Guilherme
+- [x] Pull Request aberto para a `main`, aguardando o Guilherme
