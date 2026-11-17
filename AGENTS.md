@@ -41,6 +41,13 @@ do limite, descreve o que precisa no resumo em vez de editar.
 | `backend-reviewer` | nada (so revisa) | tudo |
 | `database-specialist` | `migrations/**`, `scripts/**` | `functions/**`, arquivos de interface |
 | `devops-ci` | `.github/workflows/**`, `wrangler.toml`, `package.json` | codigo de aplicacao |
+| `canvas-game-developer` | `forca-canvas/**`, `docs/forca-canvas.md` | `public/**`, `functions/**`, `migrations/**` |
+
+### Orquestracao
+
+Quando um agente orquestrador (Claude) coordena o trabalho, ele nao escreve
+codigo: so distribui tarefas para os agentes acima, junta os resumos e registra
+tudo na documentacao do modulo (ex.: `docs/forca-canvas.md`).
 
 ## Regras de segredo — valem para todos os agentes
 
